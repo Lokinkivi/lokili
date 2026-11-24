@@ -102,7 +102,7 @@
         <div>
           <h1 class="text-lg font-extrabold tracking-tight leading-none flex items-center gap-1.5">
             <span class="text-nordic-700 dark:text-white tracking-tight">lokili</span>
-            <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-lokili-gold/90 text-slate-950 shadow-sm">Kieli</span>
+            <span id="header-badge" class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-lokili-gold/90 text-slate-950 shadow-sm">Kieli</span>
           </h1>
           <p id="header-subtitle" class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 hidden sm:block">From 'Savi' to 'Loki' • Lokili · Suomi · English</p>
         </div>
@@ -183,12 +183,12 @@
           <!-- Ending / POS Filter -->
           <select id="ending-filter" onchange="renderLexicon()" class="px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 border border-transparent focus:border-nordic-500 focus:outline-none text-sm font-semibold text-slate-700 dark:text-slate-200 cursor-pointer">
             <option value="all" data-i18n="filterAllEndings">Kaikki sanaluokat</option>
-            <option value="-A">-A • Adjektiivit (Adj.)</option>
-            <option value="-O">-O • Verbit (Verbs)</option>
-            <option value="-I">-I • Luonto & fyysinen</option>
-            <option value="-U">-U • Abstraktit & asiat</option>
-            <option value="-OJA">-OJA • Tekijät & ammatit</option>
-            <option value="-SA">-SA • Johdetut adj.</option>
+            <option value="-A" data-i18n="optEndingA">-A • Adjektiivit</option>
+            <option value="-O" data-i18n="optEndingO">-O • Verbit</option>
+            <option value="-I" data-i18n="optEndingI">-I • Luonto & fyysinen</option>
+            <option value="-U" data-i18n="optEndingU">-U • Abstraktit & asiat</option>
+            <option value="-OJA" data-i18n="optEndingOJA">-OJA • Tekijät & ammatit</option>
+            <option value="-SA" data-i18n="optEndingSA">-SA • Johdetut adj.</option>
           </select>
           <!-- Favorites Toggle -->
           <button id="fav-filter-btn" onclick="toggleFavFilter()" class="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-amber-50 dark:hover:bg-amber-900/20 text-sm font-semibold transition-colors">
@@ -248,11 +248,11 @@
             <!-- Quick Examples -->
             <div class="flex flex-wrap items-center gap-1.5">
               <span class="text-xs font-semibold text-slate-500" data-i18n="examples">Esimerkit:</span>
-              <button onclick="setTranslatorText('Loke kili vano ula ilusa visu, mii teto.')" class="text-xs px-2.5 py-1 rounded-lg bg-nordic-50 dark:bg-nordic-900/40 text-nordic-700 dark:text-nordic-300 hover:bg-nordic-100 font-medium transition-colors">Motto</button>
-              <button onclick="setTranslatorText('Kiva nosu palu! Miä pulo lokilinu na sominu.')" class="text-xs px-2.5 py-1 rounded-lg bg-nordic-50 dark:bg-nordic-900/40 text-nordic-700 dark:text-nordic-300 hover:bg-nordic-100 font-medium transition-colors">Tervehdys</button>
-              <button onclick="setTranslatorText('Soma-somane pesi vano Somise.')" class="text-xs px-2.5 py-1 rounded-lg bg-nordic-50 dark:bg-nordic-900/40 text-nordic-700 dark:text-nordic-300 hover:bg-nordic-100 font-medium transition-colors">Taivutus</button>
-              <button onclick="setTranslatorText('hyvää huomenta ystävä kiitos')" class="text-xs px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 font-medium transition-colors">FI → Lokili</button>
-              <button onclick="setTranslatorText('I love music and nature')" class="text-xs px-2.5 py-1 rounded-lg bg-violet-50 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 hover:bg-violet-100 font-medium transition-colors">EN → Lokili</button>
+              <button onclick="setTranslatorText('Loke kili vano ula ilusa visu, mii teto.')" class="text-xs px-2.5 py-1 rounded-lg bg-nordic-50 dark:bg-nordic-900/40 text-nordic-700 dark:text-nordic-300 hover:bg-nordic-100 font-medium transition-colors" data-i18n="exMotto">Motto</button>
+              <button onclick="setTranslatorText('Miä pulo lokilinu na pulo siäse.')" class="text-xs px-2.5 py-1 rounded-lg bg-nordic-50 dark:bg-nordic-900/40 text-nordic-700 dark:text-nordic-300 hover:bg-nordic-100 font-medium transition-colors" data-i18n="exDialogue">Keskustelu</button>
+              <button onclick="setTranslatorText('Soma-somane pesi vano Somise.')" class="text-xs px-2.5 py-1 rounded-lg bg-nordic-50 dark:bg-nordic-900/40 text-nordic-700 dark:text-nordic-300 hover:bg-nordic-100 font-medium transition-colors" data-i18n="exInflection">Taivutus</button>
+              <button onclick="setTranslatorText('lokin kieli on todella kaunis musiikki')" class="text-xs px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 font-medium transition-colors">FI → Lokili</button>
+              <button onclick="setTranslatorText('Finns\' home is in Finland')" class="text-xs px-2.5 py-1 rounded-lg bg-violet-50 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 hover:bg-violet-100 font-medium transition-colors">EN → Lokili</button>
             </div>
             <button onclick="setTranslatorText('')" class="text-xs font-semibold text-slate-500 hover:text-rose-500 transition-colors" data-i18n="clear">Tyhjennä</button>
           </div>
@@ -279,7 +279,7 @@
             <!-- Populated via JS -->
           </select>
           <select id="learn-direction" onchange="initLearnSession()" class="px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-nordic-500">
-            <option value="lokili-fi">Lokili → Suomi & EN</option>
+            <option value="lokili-fi" data-i18n="dirLokiliTarget">Lokili → Suomi & EN</option>
             <option value="fi-lokili">Suomi → Lokili</option>
             <option value="en-lokili">English → Lokili</option>
           </select>
@@ -476,9 +476,9 @@
           </div>
           <p class="text-xs text-slate-500 dark:text-slate-400">
             <strong>Yhdyssanojen vokaalirajapinta:</strong> Kaksoisvokaali sallitaan saumassa (<em>ku + asu = kuasu</em>, <em>ku + imu = kuimu</em>).<br/>
-            <strong>Persoonapronominit:</strong> Vanhempaa kerrostumaa kaksoisvokaaleineen ja -te/-tu-päätteineen (<em>mii, miite, miitu; tii, tiite, tiitu; sii, siite, siitu</em>).
-          </p>
-        </div>
+      <!-- Grammar Guide Cards (Bilingual FI / EN, from The_Lokili_Lexicon_2.docx) -->
+      <div id="grammar-guide-cards" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Dynamically rendered according to active UI language (FI / EN) -->
       </div>
     </section>
   </main>
@@ -531,7 +531,7 @@
       </div>
 
       <!-- Meanings -->
-      <div class="space-y-3">
+      <div id="modal-meanings-container" class="flex flex-col gap-3">
         <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/70 border border-slate-100 dark:border-slate-800">
           <div class="text-xs font-bold uppercase tracking-wider text-nordic-600 dark:text-nordic-400 mb-1">🇫🇮 Suomi</div>
           <p id="modal-fi" class="text-sm font-medium leading-relaxed"></p>
@@ -799,10 +799,16 @@
         ["jema", "ihmeellinen, hämmästyttävä, suurenmoinen, kummallinen, merkillinen", "Miraculous, Wonderful, Marvelous, Wondrous, Amazing, Astonishing, Peculiar"],
         ["jemi", "ihme, ihmeteko, kumma", "Miracle, Wonder, Marvel"],
         ["jemo", "ihmetellä, hämmästellä, kummastella, hämmästyä", "To wonder, To marvel, To be amazed, To be astonished"],
+        ["jesa", "valkoinen, valkea, lumivalkoinen, vaalea, vaaleaverinen", "White, Snow-white, Light (in color), Pale, Fair, Fair-haired, Blonde"],
+        ["jeso", "valkaista, vaalentaa, vaaleta, vaalentua", "To whiten, To bleach, To lighten (in color), To turn white, To grow pale"],
+        ["jesu", "valkoisuus, valkeus, vaaleus, valkaisu, valkaiseminen, vaalentaminen, vaaleneminen", "Whiteness, Lightness (in color), Paleness, Fairness, Whitening, Bleaching, Lightening"],
         ["joka", "joka, jokainen, kaikki", "Every, Each, All"],
         ["juhto", "johtaa, ohjata, ohjailla, opastaa, hallita", "To lead, To direct, To guide, To steer, To manage"],
         ["juhtu", "johtaminen, ohjaaminen, ohjaus, opastus, hallinta", "Leading, Leadership, Direction, Guidance, Management, Control"],
         ["juma", "luonnollinen, luontainen, luontoinen, luonnonmukainen, aito", "Natural, Innate, Inherent, Organic, Genuine, Unforced"],
+        ["jüka", "voittava, voittoisa", "Winning, Victorious"],
+        ["jüko", "voittaa, päihittää", "To win, To defeat, To beat"],
+        ["jüku", "voitto, voittaminen, mestaruus", "Victory, Win, Winning, Championship"],
         ["jäka", "jäinen, jäätynyt, jääpeitteinen, hyinen", "Icy, Frozen, Ice-covered, Glacial, Frosty"],
         ["jäko", "jäätyä, jäädyttää, hyytyä, paleltua", "To freeze, To ice over, To congeal, To chill"],
         ["kaja", "valoisa, kirkas, loistava, paistava, kajastava", "Bright, Shining, Luminous, Radiant, Glowing"],
@@ -903,6 +909,9 @@
         ["pesa", "kotoisa, kodikas, pesällinen, koti-, kotoperäinen", "Homely, Cozy, Homey, Nesting, Domestic, Native, Home (attr.)"],
         ["peso", "pesiä, asua, elää (jossakin), kotiutua, olla kotonaan", "To nest, To dwell, To reside, To live (somewhere), To make a home, To feel at home"],
         ["peta", "petollinen, vaarallinen, väkivaltainen, julma, raaka, saalistava, rosvoava, riistävä, pettävä, huijaava, paha, ilkeä, pahankurinen, ilkikurinen, hirveä, hirvittävä, pirullinen, saatanallinen, perkeleellinen, perkeleenmoinen", "Treacherous, Deceitful, Dangerous, Perilous, Hazardous, Violent, Brutal, Cruel, Fierce, Aggressive, Predatory, Preying, Robbing, Marauding, Exploitative, Betraying, Cheating, Evil, Wicked, Mischievous, Malicious, Terrible, Horrible, Dreadful, Awful, Horrifying, Devilish, Fiendish, Diabolical, Satanic, Hellish, Infernal, Damned"],
+        ["peta-pusta", "murhattu", "Murdered"],
+        ["peta-pusto", "murhata", "To murder"],
+        ["peta-pustu", "murha, murhaaminen", "Murder, Murdering"],
         ["peti", "petos, ryöstö, riisto, huijaus, rosvous, vaara, väkivalta, väkivaltaisuus, julmuus, raakuus, pahuus, ilkeys, koiruus, ilkivalta, harmi, kiusa, saalistus, metsästys, rosvoaminen, ryöstäminen, riistäminen, saalistaminen, metsästäminen, pettäminen, huijaaminen, piru, saatana, perkele, pentele, vittu", "Deceit, Betrayal, Treachery, Robbery, Plunder, Exploitation, Fraud, Scam, Swindle, Danger, Peril, Hazard, Violence, Brutality, Cruelty, Aggression, Evil, Wickedness, Mischief, Malice, Trouble, Harm, Predation, Hunting, Preying, Robbing, Plundering, Exploiting, Betraying, Cheating, Deceiving, Devil, Fiend, Demon, Satan, Deuce, Damn (expletive), Hell (expletive), Fuck (expletive)"],
         ["peto", "saalistaa, metsästää, rosvota, ryöstää, riistää, huijata, pettää, käyttää väkivaltaa, pahoinpidellä, kohdella julmasti, tehdä pahaa, tehdä kiusaa, aiheuttaa harmia, vahingoittaa", "To prey on, To hunt, To rob, To plunder, To pillage, To exploit, To cheat, To swindle, To deceive, To betray, To use violence, To assault, To batter, To brutalize, To do evil, To do mischief, To cause trouble, To harm"],
         ["pija", "kirottu, kirouksen alainen, kiroava, kiroileva, pahuksen", "Cursed, Accursed, Damned, Jinxed, Cursing, Swearing, Profane"],
@@ -916,9 +925,13 @@
         ["poso", "saada, ottaa, ottaa osaa, osallistua", "To get, To receive, To obtain, To take, To take part, To participate"],
         ["posu", "saaminen, ottaminen, osallistuminen", "Getting, Receiving, Obtaining, Taking, Participation, Participating, Taking part"],
         ["puno", "punoa, kutoa, palmikoida, rakentaa puusta, metsittyä", "To weave, To twine, To braid, To build with wood, To become forested"],
-        ["puta", "valkea, valkoinen, puhdas, puhtoinen, siveä, tahraton, viaton", "White, Snow-white, Pure, Clean, Chaste, Immaculate, Spotless, Innocent"],
-        ["puto", "puhdistaa, puhdistua, siivota, valkaista", "To clean, To cleanse, To purify, To whiten"],
-        ["putu", "valkeus, valkoisuus, puhtaus, puhtoisuus, siveys, tahrattomuus", "Whiteness, Purity, Cleanliness, Chastity, Immaculateness, Spotlessness"],
+        ["pusta", "tapettu, surmattu, teurastettu", "Killed, Slain, Slaughtered, Butchered"],
+        ["pusto", "tappaa, surmata, teurastaa", "To kill, To slay, To slaughter, To butcher"],
+        ["pustu", "tappo, surma, teurastus, tappaminen, surmaaminen, teurastaminen", "Killing, Manslaughter, Slaying, Slaughter, Butchering"],
+        ["pustusa", "tappava, kuolettava, surmaava", "Deadly, Lethal, Fatal"],
+        ["puta", "purjehtiva, seilaava, laivalla kulkeva, laiva-, alus-, laivattu", "Sailing, Seafaring, Ship (attr.), Vessel (attr.), Naval, Shipped"],
+        ["puto", "purjehtia, seilata, matkustaa laivalla, kulkea vesitse, laivata", "To sail, To voyage, To travel by ship, To navigate, To ship"],
+        ["putu", "laiva, alus, purjealus, purjehdus, merimatka, laivaus", "Ship, Vessel, Sailing ship, Sailing, Voyage, Shipping"],
         ["päja", "lämmin, kuuma, palava, polttava", "Warm, Hot, Burning, Blazing, Scorching"],
         ["päjisa", "tulinen, kiihkeä, tulisieluinen, kiivas", "Fiery, Ardent, Fervent, Passionate, Hot-blooded, Spicy"],
         ["päjo", "palaa, roihuta, polttaa, lämmittää, lämmetä, kuumentaa, kuumeta", "To burn, To blaze, To scorch, To warm (up), To heat (up)"],
@@ -943,6 +956,9 @@
         ["tevo", "tervehtyä, toipua, parantua, eheytyä, korjaantua, tervehtiä", "To get well, To recover, To heal, To become whole, To mend, To greet, To salute, To say hello"],
         ["tevu", "terveys, eheys, ehjyys, tervehdys, hei, terve", "Health, Wholeness, Soundness, Intactness, Greeting, Hello, Hi"],
         ["tipo", "tippua, pisaroida, tiputtaa, tipahtaa, vihmoa", "To drip, To drop (of liquid), To trickle, To fall in drops, To drizzle"],
+        ["tista", "puhdas, puhtoinen, siveä, tahraton, viaton", "Clean, Pure, Chaste, Immaculate, Spotless, Innocent"],
+        ["tisto", "puhdistaa, puhdistua, siivota", "To clean, To cleanse, To purify, To tidy (up)"],
+        ["tistu", "puhtaus, puhtoisuus, siveys, tahrattomuus, viattomuus, puhdistus, puhdistaminen, siivous, siivoaminen", "Cleanliness, Purity, Chastity, Immaculateness, Spotlessness, Innocence, Cleaning, Cleansing, Purification, Tidying (up)"],
         ["toma", "tuo, se (osoittava)", "That"],
         ["tosa", "siellä, tuolla, siinä, tuossa, sinne, tuonne", "There, Over there, In that place, To there, Thither"],
         ["tota", "tosi, totta, todellinen, todenmukainen, varma", "True, Real, Actual, Genuine, Certain, Sure"],
@@ -959,7 +975,7 @@
         ["tähta", "tärkeä, merkittävä, olennainen, oleellinen, keskeinen, tähdellinen", "Important, Significant, Essential, Fundamental, Key, Crucial"],
         ["tähto", "merkitä (tehdä merkki), merkitä (tarkoittaa), tähdentää, korostaa, painottaa, tähdätä", "To mark, To signify, To mean, To underscore, To emphasize, To highlight, To stress, To aim, To target"],
         ["tähtu", "tärkeys, merkittävyys, merkitys, olennaisuus, tähdellisyys, tähtäys, tavoite, päämäärä", "Importance, Significance, Meaning, Essentiality, Relevance, Aim, Target, Goal"],
-        ["täma", "tämä", "This"],
+        ["tämä", "tämä", "This"],
         ["täpi", "piste, täplä, pilkku, laikku, hiukkanen, tomuhiukkanen, murunen, jyvänen", "Dot, Spot, Point, Speck, Fleck, Particle, Mote of dust, Grain, Crumb"],
         ["täsä", "tässä, täällä, tänne", "Here, In this place, Over here, To here, Hither"],
         ["ula", "todella, erittäin", "Really, Very"],
@@ -1007,11 +1023,13 @@
         ["jelopa", "eurooppalainen", "European (person/adjective)"],
         ["joka-imu", "jokainen (ihminen), kaikki (ihmiset), joka ikinen", "Everyone, Everybody, Every person, Each person, All people"],
         ["jomoja", "noita, velho, taikuri, loitsija, tietäjä, šamaani, lumooja", "Witch, Wizard, Sorcerer, Magician, Enchanter, Enchantress, Warlock, Mage, Shaman"],
-        ["juhtoja", "johtaja, päällikkö, ohjaaja, opas", "Leader, Manager, Director, Chief, Guide"],
+        ["juhtoja", "johtaja, päällikkö, kapteeni, ohjaaja, opas", "Leader, Manager, Director, Chief, Captain, Guide"],
+        ["jükoja", "voittaja, mestari (kilpailussa tai urheilussa)", "Winner, Victor, Champion"],
         ["jäkisava", "islantilainen", "Icelandic (person/adjective), Icelander"],
         ["kala", "karjalainen, karjalankielinen, kalaisa, kalainen", "Karelian, Karelian-speaking, Karelian-language, Rich in fish, Fishy"],
         ["kalalisava", "grönlantilainen", "Greenlandic (person/adjective), Greenlander"],
         ["kaloja", "kalastaja, kalamies", "Fisher, Fisherman, Angler"],
+        ["kepu-mekoja", "kuvataiteilija", "Visual artist, Fine artist"],
         ["kitoja", "kiittäjä, kehuja, ylistäjä", "Thanker, Praiser, Commender, Extoller"],
         ["kusoja", "kysyjä, kyselijä, tiedustelija, pyytäjä, haastattelija, kuulustelija", "Questioner, Inquirer, Requester, Interviewer, Interrogator"],
         ["käskoja", "käskijä, komentaja, käskyttäjä, komendantti, määräilijä", "Commander, Commandant, Taskmaster, Order-giver, Bossy person"],
@@ -1022,6 +1040,7 @@
         ["luna-amelika", "eteläamerikkalainen", "South American (person/adjective)"],
         ["lusisava", "venäläinen", "Russian (person/adjective)"],
         ["mavala", "virolainen", "Estonian (person/adjective)"],
+        ["mekoja", "taitaja, osaaja, mestari (taidon tai alan), käsityöläinen, taiteilija, taidemaalari, maalari", "Skilled person, Expert, Master (of a skill or craft), Craftsman, Artisan, Artist, Painter"],
         ["nimu", "nimi", "Name"],
         ["okenija", "oseanialainen", "Oceanian (person/adjective), Oceanic"],
         ["ostalija", "australialainen", "Australian (person/adjective)"],
@@ -1029,12 +1048,17 @@
         ["palu", "ystävä, ole hyvä, olkaa hyvä, pyydän, kyllä kiitos, mielelläni, jos viitsitte", "Friend, Please"],
         ["palusa", "ystävällinen", "Friendly"],
         ["peloja", "pelaaja, peluri, leikkijä", "Player (of a game), Gamer"],
+        ["peta-pustoja", "murhaaja", "Murderer"],
         ["petoja", "saalistaja, petoeläin, metsästäjä, rosvo, ryöstäjä, riistäjä, väkivallantekijä, pahoinpitelijä, julmuri, hirviö, pettäjä, huijari, pahantekijä, kiusankappale, rettelöitsijä, konna, lurjus, piru, saatana, perkele, pentele, vittu, haista vittu", "Predator, Beast of prey, Hunter, Robber, Brigand, Exploiter, Violent offender, Assailant, Brute, Abuser, Monster, Beast, Traitor, Betrayer, Cheater, Deceiver, Swindler, Evildoer, Mischief-maker, Troublemaker, Villain, Rogue, Scoundrel, Devil, Fiend, Demon, Satan, Deuce, Damn (expletive), Hell (expletive), Fuck (expletive), Fuck you (expletive)"],
+        ["pustoja", "tappaja, surmaaja, teurastaja", "Killer, Slayer, Slaughterer, Butcher"],
+        ["putoja", "merenkulkija, merimies, purjehtija, laivuri", "Seafarer, Sailor, Mariner, Skipper"],
+        ["putu-juhtoja", "merikapteeni, laivan kapteeni, aluksen päällikkö", "Sea captain, Ship's captain, Shipmaster"],
         ["sava", "maanmies, maalainen, (jonkun) maan asukas", "Countryman, Compatriot, Inhabitant"],
         ["soma", "suomalainen, suomenkielinen", "Finnish, Finn, Finnish-speaking, Finnish-language"],
         ["suvisava", "ruotsalainen", "Swedish (person/adjective), Swede"],
         ["tanisava", "tanskalainen", "Danish (person/adjective), Dane"],
         ["tekoja", "tekijä, työntekijä, puurtaja", "Worker, Maker, Doer, Laborer"],
+        ["tistoja", "siivooja, puhdistaja", "Cleaner, Janitor, Purifier"],
         ["uja-amelika", "pohjoisamerikkalainen", "North American (person/adjective)"],
         ["ujuluta", "norjalainen", "Norwegian (person/adjective)"],
         ["uku", "herra, herrasmies", "Mister, Sir, Gentleman"],
@@ -1273,6 +1297,7 @@
         ["usasu-usasu", "uutiset, uutislähetys (ark.)", "News, The news, News reports, News bulletin"]
       ],
       culture: [
+        ["Jesu", "Jeesus, Kristus, Jeesus Kristus", "Jesus, Christ, Jesus Christ"],
         ["joma", "maaginen, taianomainen, lumoava, lumottu, noiduttu, taiottu, mystinen, taika-, noita-", "Magical, Enchanting, Bewitching, Enchanted, Bewitched, Charmed, Spellbound, Mystical, Magic (attr.)"],
         ["jomo", "taikoa, noitua, lumota, loitsia, loihtia, tehdä taikoja", "To do magic, To cast a spell, To bewitch, To enchant, To charm, To conjure, To practice witchcraft"],
         ["jomu", "taikuus, noituus, magia, lumous, loitsu, taika, taikominen, noituminen", "Magic, Witchcraft, Sorcery, Wizardry, Enchantment, Spell, Charm, Conjuring"],
@@ -1342,21 +1367,35 @@
 
     const I18N = {
       fi: {
+        headerBadge: 'Kieli',
+        headerSubtitle: "From 'Savi' to 'Loki' • Lokili · Suomi · English",
+        pageTitle: 'Lokili Lexicon — Kolmikielinen Sanasto & Kielenoppimissovellus',
         mottoLabel: 'Lokilin motto',
         listen: 'Kuuntele',
         analyzeMotto: 'Käännä',
         filterAllEndings: 'Kaikki sanaluokat',
+        optEndingA: '-A • Adjektiivit',
+        optEndingO: '-O • Verbit',
+        optEndingI: '-I • Luonto & fyysinen',
+        optEndingU: '-U • Abstraktit & asiat',
+        optEndingOJA: '-OJA • Tekijät & ammatit',
+        optEndingSA: '-SA • Johdetut adj.',
         favorites: 'Suosikit',
         tapHint: 'Napauta sanaa nähdäksesi taivutukset & ääntämisen',
         noResultsTitle: 'Ei hakutuloksia',
         noResultsDesc: 'Kokeile toista hakusanaa tai poista suodattimet.',
         resetFilters: 'Tyhjennä suodattimet',
         translatorTitle: 'Kolmikielinen Kääntäjä & Morfologia-analysaattori',
-        translatorSub: 'Kääntää sanoja ja lauseita — tunnistaa myös lokilin sijapäätteet (-e, -ne, -nu, -se) ja monikot.',
+        translatorSub: 'Kääntää ja taivuttaa sanoja sekä lauseita — tunnistaa lokilin, suomen ja englannin sijamuotoja, monikoita ja verbejä.',
+        translatorPlaceholder: "Kirjoita lokiliksi, suomeksi tai englanniksi... esim. 'Loke kili vano ula ilusa visu' tai 'lokin kieli'",
         examples: 'Esimerkit:',
+        exMotto: 'Motto',
+        exDialogue: 'Keskustelu',
+        exInflection: 'Taivutus',
         clear: 'Tyhjennä',
         modeFlashcards: '🃏 Kääntökortit',
         modeQuiz: '🎯 Monivalintavisa',
+        dirLokiliTarget: 'Lokili → Suomi & EN',
         tapToFlip: 'Napauta kääntääksesi kortin',
         practiceMore: 'Harjoittele',
         flip: 'Käännä',
@@ -1379,21 +1418,35 @@
         wordsUnit: 'sanaa'
       },
       en: {
+        headerBadge: 'Language',
+        headerSubtitle: "From 'Savi' to 'Loki' • Lokili · English · Finnish",
+        pageTitle: 'Lokili Lexicon — Trilingual Dictionary & Language Learning App',
         mottoLabel: 'Lokili Motto',
         listen: 'Listen',
         analyzeMotto: 'Translate',
         filterAllEndings: 'All Word Classes',
+        optEndingA: '-A • Adjectives',
+        optEndingO: '-O • Verbs',
+        optEndingI: '-I • Nature & Physical',
+        optEndingU: '-U • Abstract & Concepts',
+        optEndingOJA: '-OJA • Doers & Professions',
+        optEndingSA: '-SA • Derived Adjectives',
         favorites: 'Favorites',
         tapHint: 'Tap any word for declensions & pronunciation',
         noResultsTitle: 'No matches found',
         noResultsDesc: 'Try another search term or clear active filters.',
         resetFilters: 'Reset filters',
         translatorTitle: 'Trilingual Translator & Morphology Analyzer',
-        translatorSub: 'Translates words & sentences — automatically detects Lokili case suffixes (-e, -ne, -nu, -se) and plurals.',
+        translatorSub: 'Translates and inflects words & sentences — recognizes cases, plurals, and verb forms across Lokili, English, and Finnish.',
+        translatorPlaceholder: "Type in Lokili, English, or Finnish... e.g. 'Loke kili vano ula ilusa visu' or \"Finns' home is in Finland\"",
         examples: 'Examples:',
+        exMotto: 'Motto',
+        exDialogue: 'Dialogue',
+        exInflection: 'Inflection',
         clear: 'Clear',
         modeFlashcards: '🃏 Flashcards',
         modeQuiz: '🎯 Quiz',
+        dirLokiliTarget: 'Lokili → English & FI',
         tapToFlip: 'Tap card to flip',
         practiceMore: 'Review',
         flip: 'Flip',
@@ -1412,7 +1465,7 @@
         navGrammar: 'Grammar',
         copy: 'Copy',
         autoGrammar: 'Grammar & Inflections',
-        searchPlaceholder: 'Search in Lokili, Finnish, or English...',
+        searchPlaceholder: 'Search in Lokili, English, or Finnish...',
         wordsUnit: 'entries'
       }
     };
@@ -1533,7 +1586,9 @@
         }
       }
       const clean = res.replace(/·-/g, '-').replace(/·$/g, '');
-      const phonetic = w.includes('ü') ? `  [ü = suomen y]` : '';
+      const phonetic = w.includes('ü')
+        ? (uiLang === 'fi' ? '  [ü = suomen y]' : '  [ü = Finnish y / German ü]')
+        : '';
       return `[ ${clean} ]${phonetic}`;
     }
 
@@ -1587,6 +1642,7 @@
 
       if (tab === 'learn' && fcDeck.length === 0) initLearnSession();
       if (tab === 'grammar') {
+        renderGrammarGuide();
         runInflector();
         runNumberGenerator();
       }
@@ -1611,12 +1667,18 @@
 
     function applyUILang() {
       const dict = I18N[uiLang];
+      document.documentElement.lang = uiLang;
+      document.title = dict.pageTitle;
+      document.getElementById('header-badge').textContent = dict.headerBadge;
+      document.getElementById('header-subtitle').textContent = dict.headerSubtitle;
       document.getElementById('ui-lang-btn').textContent = uiLang === 'fi' ? 'FI ▸ EN' : 'EN ▸ FI';
       document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.dataset.i18n;
         if (dict[key]) el.textContent = dict[key];
       });
       document.getElementById('search-input').placeholder = dict.searchPlaceholder;
+      const transInput = document.getElementById('translator-input');
+      if (transInput) transInput.placeholder = dict.translatorPlaceholder;
 
       // Update desktop nav labels
       const navLabels = {
@@ -1633,7 +1695,15 @@
       renderCategoryPills();
       populateLearnCategories();
       renderLexicon();
+      renderGrammarGuide();
+      if (currentModalItem && !document.getElementById('word-modal').classList.contains('hidden')) {
+        openWordModal(currentModalItem.id);
+      }
       if (activeTab === 'translator') runTranslation();
+      if (activeTab === 'learn') {
+        if (learnMode === 'flashcards' && fcDeck.length) renderFlashcard();
+        if (learnMode === 'quiz' && quizQuestions.length && quizIndex < quizQuestions.length) renderQuizQuestion();
+      }
       if (activeTab === 'grammar') { runInflector(); runNumberGenerator(); }
     }
 
@@ -1782,6 +1852,11 @@
         const badge = getEndingBadgeInfo(item.ending);
         const catInfo = catMap[item.cat];
         const isFav = favorites.has(item.id);
+        // Adapt primary & secondary language presentation to active UI language
+        const primaryCode = uiLang === 'fi' ? 'FI' : 'EN';
+        const secondaryCode = uiLang === 'fi' ? 'EN' : 'FI';
+        const primaryMeaning = uiLang === 'fi' ? item.fi : item.en;
+        const secondaryMeaning = uiLang === 'fi' ? item.en : item.fi;
         return `
           <article onclick="openWordModal('${item.id}')" class="group cursor-pointer bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 hover:border-nordic-400 dark:hover:border-nordic-600 hover:shadow-md transition-all flex flex-col justify-between gap-2.5">
             <div>
@@ -1790,17 +1865,17 @@
                   <h3 class="text-lg font-extrabold text-nordic-800 dark:text-nordic-300 group-hover:text-nordic-600 dark:group-hover:text-nordic-200 truncate">${escapeHtml(item.lokili)}</h3>
                 </div>
                 <div class="flex items-center gap-1 shrink-0">
-                  <button onclick="event.stopPropagation(); speakLokili('${escapeJs(item.lokili)}')" title="Kuuntele" class="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-nordic-100 dark:hover:bg-nordic-900/60 text-xs transition-colors">🔊</button>
-                  <button onclick="toggleFavoriteById('${item.id}', event)" title="Suosikki" class="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-amber-100 dark:hover:bg-amber-900/40 text-xs transition-colors ${isFav ? 'text-amber-500' : 'text-slate-400'}">${isFav ? '★' : '☆'}</button>
+                  <button onclick="event.stopPropagation(); speakLokili('${escapeJs(item.lokili)}')" title="${uiLang === 'fi' ? 'Kuuntele' : 'Listen'}" class="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-nordic-100 dark:hover:bg-nordic-900/60 text-xs transition-colors">🔊</button>
+                  <button onclick="toggleFavoriteById('${item.id}', event)" title="${uiLang === 'fi' ? 'Suosikki' : 'Favorite'}" class="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-amber-100 dark:hover:bg-amber-900/40 text-xs transition-colors ${isFav ? 'text-amber-500' : 'text-slate-400'}">${isFav ? '★' : '☆'}</button>
                 </div>
               </div>
-              <!-- Finnish -->
+              <!-- Primary active UI language meaning -->
               <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 mt-1.5 line-clamp-2">
-                <span class="text-[10px] font-bold uppercase text-slate-400 mr-1">FI</span>${escapeHtml(item.fi)}
+                <span class="text-[10px] font-bold uppercase text-nordic-500 dark:text-nordic-400 mr-1">${primaryCode}</span>${escapeHtml(primaryMeaning)}
               </p>
-              <!-- English -->
+              <!-- Secondary language meaning -->
               <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">
-                <span class="text-[10px] font-bold uppercase text-slate-400 mr-1">EN</span>${escapeHtml(item.en)}
+                <span class="text-[10px] font-bold uppercase text-slate-400 mr-1">${secondaryCode}</span>${escapeHtml(secondaryMeaning)}
               </p>
             </div>
             <div class="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800/80 text-[11px]">
@@ -1828,6 +1903,12 @@
       document.getElementById('modal-fi').textContent = item.fi;
       document.getElementById('modal-en').textContent = item.en;
       document.getElementById('modal-pos-badge').textContent = badge.label;
+
+      // Order modal meanings so the active UI language appears first
+      const meaningsContainer = document.getElementById('modal-meanings-container');
+      if (meaningsContainer) {
+        meaningsContainer.className = uiLang === 'fi' ? 'flex flex-col gap-3' : 'flex flex-col-reverse gap-3';
+      }
 
       const isFav = favorites.has(item.id);
       const favBtn = document.getElementById('modal-fav-btn');
@@ -1900,7 +1981,7 @@
     }
 
     // =========================================================================
-    // 8. TRILINGUAL TRANSLATOR & MORPHOLOGY ANALYZER
+    // 8. TRILINGUAL TRANSLATOR & MORPHOLOGY ENGINE (LOKILI ⇄ SUOMI ⇄ ENGLISH)
     // =========================================================================
     function setTransLang(lang) {
       transSourceLang = lang;
@@ -1925,38 +2006,378 @@
     }
 
     /**
+     * Split leading/trailing punctuation from a token so sentences retain punctuation cleanly
+     */
+    function splitPunctuation(rawToken) {
+      const m = rawToken.match(/^([("'”„«¿¡]*)(.*?)([.,!?;:)"”„»]*)$/);
+      if (!m) return { lead: '', core: rawToken, trail: '' };
+      return { lead: m[1] || '', core: m[2] || '', trail: m[3] || '' };
+    }
+
+    /**
+     * Extract a clean primary sense from a comma-separated gloss (stripping parenthetical notes)
+     */
+    function getPrimarySense(entry, lang, preferNoun = false) {
+      const raw = lang === 'fi' ? entry.fi : entry.en;
+      const parts = raw.split(',').map(p => p.replace(/\s*\([^)]*\)/g, '').trim()).filter(Boolean);
+      if (!parts.length) return raw;
+      // For nationality/people words like "Finnish, Finn" in English, prefer the noun when plural/genitive
+      if (lang === 'en' && preferNoun && parts.length > 1) {
+        const nounCand = parts.find(p => /^[A-Z][a-z]+$/.test(p) && !p.endsWith('ish') && !p.endsWith('ic'));
+        if (nounCand) return nounCand;
+      }
+      return parts[0];
+    }
+
+    /**
+     * Convert structured morphology object into localized display tags for the breakdown cards
+     */
+    function getMorphTags(morph) {
+      if (!morph) return [];
+      const tags = [];
+      if (morph.phrase) tags.push(uiLang === 'fi' ? 'FRAASI' : 'PHRASE');
+      if (morph.plural) tags.push(uiLang === 'fi' ? 'MONIKKO' : 'PLURAL');
+      if (morph.caseType === 'gen') {
+        tags.push(morph.suffix === 'ne'
+          ? (uiLang === 'fi' ? '-NE genetiivi' : '-NE genitive')
+          : (uiLang === 'fi' ? '-E genetiivi' : '-E genitive'));
+      } else if (morph.caseType === 'part') {
+        tags.push(uiLang === 'fi' ? '-NU kohde/part.' : '-NU target/part.');
+      } else if (morph.caseType === 'ine') {
+        tags.push(uiLang === 'fi' ? '-SE tila/iness.' : '-SE state/in');
+      }
+      return tags;
+    }
+
+    // --- FINNISH MORPHOLOGICAL SYNTHESIS (Inflect Finnish outputs naturally) ---
+    const FI_BACK_VOWEL_RE = /[aou]/i;
+    function fiHarmony(word) {
+      return FI_BACK_VOWEL_RE.test(word) ? 'a' : 'ä';
+    }
+
+    // Irregular / high-frequency Finnish noun stem table: { gen, part, ine, all, plNom, plGen, plPart, plIne, langTra }
+    const FI_NOUN_OVERRIDES = {
+      'suomi': { gen: 'Suomen', part: 'Suomea', ine: 'Suomessa', all: 'Suomelle' },
+      'suomen kieli': { gen: 'suomen kielen', part: 'suomen kieltä', ine: 'suomeksi', all: 'suomen kielelle', langTra: 'suomeksi' },
+      'lokilin kieli': { gen: 'lokilin kielen', part: 'lokilin kieltä', ine: 'lokiliksi', all: 'lokilin kielelle', langTra: 'lokiliksi' },
+      'englannin kieli': { gen: 'englannin kielen', part: 'englannin kieltä', ine: 'englanniksi', langTra: 'englanniksi' },
+      'ruotsin kieli': { gen: 'ruotsin kielen', part: 'ruotsin kieltä', ine: 'ruotsiksi', langTra: 'ruotsiksi' },
+      'norjan kieli': { gen: 'norjan kielen', part: 'norjan kieltä', ine: 'norjaksi', langTra: 'norjaksi' },
+      'tanskan kieli': { gen: 'tanskan kielen', part: 'tanskan kieltä', ine: 'tanskaksi', langTra: 'tanskaksi' },
+      'islannin kieli': { gen: 'islannin kielen', part: 'islannin kieltä', ine: 'islanniksi', langTra: 'islanniksi' },
+      'viron kieli': { gen: 'viron kielen', part: 'viron kieltä', ine: 'viroksi', langTra: 'viroksi' },
+      'venäjän kieli': { gen: 'venäjän kielen', part: 'venäjän kieltä', ine: 'venäjäksi', langTra: 'venäjäksi' },
+      'karjalan kieli': { gen: 'karjalan kielen', part: 'karjalan kieltä', ine: 'karjalaksi', langTra: 'karjalaksi' },
+      'saamen kieli': { gen: 'saamen kielen', part: 'saamen kieltä', ine: 'saameksi', langTra: 'saameksi' },
+      'kieli': { gen: 'kielen', part: 'kieltä', ine: 'kielessä', plNom: 'kielet', plGen: 'kielten', plPart: 'kieliä', plIne: 'kielissä' },
+      'lokki': { gen: 'lokin', part: 'lokkia', ine: 'lokissa', plNom: 'lokit', plGen: 'lokkien', plPart: 'lokkeja', plIne: 'lokeissa' },
+      'vesi': { gen: 'veden', part: 'vettä', ine: 'vedessä', plNom: 'vedet', plGen: 'vesien', plPart: 'vesiä', plIne: 'vesissä' },
+      'meri': { gen: 'meren', part: 'merta', ine: 'meressä', plNom: 'meret', plGen: 'merien', plPart: 'meriä', plIne: 'merissä' },
+      'järvi': { gen: 'järven', part: 'järveä', ine: 'järvessä', plNom: 'järvet', plGen: 'järvien', plPart: 'järviä', plIne: 'järvissä' },
+      'saari': { gen: 'saaren', part: 'saarta', ine: 'saaressa', plNom: 'saaret', plGen: 'saarten', plPart: 'saaria', plIne: 'saarissa' },
+      'kivi': { gen: 'kiven', part: 'kiveä', ine: 'kivessä', plNom: 'kivet', plGen: 'kivien', plPart: 'kiviä', plIne: 'kivissä' },
+      'tuli': { gen: 'tulen', part: 'tulta', ine: 'tulessa', plNom: 'tulet', plGen: 'tulien', plPart: 'tulia', plIne: 'tulissa' },
+      'tuuli': { gen: 'tuulen', part: 'tuulta', ine: 'tuulessa', plNom: 'tuulet', plGen: 'tuulien', plPart: 'tuulia', plIne: 'tuulissa' },
+      'lumi': { gen: 'lumen', part: 'lunta', ine: 'lumessa', plNom: 'lumet', plGen: 'lumien', plPart: 'lumia', plIne: 'lumissa' },
+      'nimi': { gen: 'nimen', part: 'nimeä', ine: 'nimessä', plNom: 'nimet', plGen: 'nimien', plPart: 'nimiä', plIne: 'nimissä' },
+      'sydän': { gen: 'sydämen', part: 'sydäntä', ine: 'sydämessä', plNom: 'sydämet', plGen: 'sydämien', plPart: 'sydämiä', plIne: 'sydämissä' },
+      'mies': { gen: 'miehen', part: 'miestä', ine: 'miehessä', plNom: 'miehet', plGen: 'miesten', plPart: 'miehiä', plIne: 'miehissä' },
+      'susi': { gen: 'suden', part: 'sutta', ine: 'sudessa', plNom: 'sudet', plGen: 'susien', plPart: 'susia', plIne: 'susissa' },
+      'aika': { gen: 'ajan', part: 'aikaa', ine: 'ajassa', plNom: 'ajat', plGen: 'aikojen', plPart: 'aikoja', plIne: 'ajoissa' },
+      'maa': { gen: 'maan', part: 'maata', ine: 'maassa', plNom: 'maat', plGen: 'maiden', plPart: 'maita', plIne: 'maissa' },
+      'yö': { gen: 'yön', part: 'yötä', ine: 'yössä', plNom: 'yöt', plGen: 'öiden', plPart: 'öitä', plIne: 'öissä' },
+      'tie': { gen: 'tien', part: 'tietä', ine: 'tiessä', plNom: 'tiet', plGen: 'teiden', plPart: 'teitä', plIne: 'teissä' },
+      'kuu': { gen: 'kuun', part: 'kuuta', ine: 'kuussa', plNom: 'kuut', plGen: 'kuiden', plPart: 'kuita', plIne: 'kuissa' },
+      'pää': { gen: 'pään', part: 'päätä', ine: 'päässä', plNom: 'päät', plGen: 'päiden', plPart: 'päitä', plIne: 'päissä' },
+      'hän': { gen: 'hänen', part: 'häntä', ine: 'siinä', all: 'hänelle' },
+      'se': { gen: 'sen', part: 'sitä', ine: 'siinä', all: 'sille' },
+      'rakkaus': { gen: 'rakkauden', part: 'rakkautta', ine: 'rakkaudessa', plNom: 'rakkaudet', plGen: 'rakkauksien' },
+      'totuus': { gen: 'totuuden', part: 'totuutta', ine: 'totuudessa', plNom: 'totuudet', plGen: 'totuuksien' },
+      'vapaus': { gen: 'vapauden', part: 'vapautta', ine: 'vapaudessa', plNom: 'vapaudet', plGen: 'vapauksien' },
+      'kauneus': { gen: 'kauneuden', part: 'kauneutta', ine: 'kauneudessa' },
+      'terveys': { gen: 'terveyden', part: 'terveyttä', ine: 'terveydessä' },
+      'hallinto': { gen: 'hallinnon', part: 'hallintoa', ine: 'hallinnossa', plNom: 'hallinnot', plGen: 'hallintojen' },
+      'hallitus': { gen: 'hallituksen', part: 'hallitusta', ine: 'hallituksessa', plNom: 'hallitukset', plGen: 'hallitusten' },
+      'kaupunki': { gen: 'kaupungin', part: 'kaupunkia', ine: 'kaupungissa', plNom: 'kaupungit', plGen: 'kaupunkien' },
+      'luonto': { gen: 'luonnon', part: 'luontoa', ine: 'luonnossa' },
+      'musiikki': { gen: 'musiikin', part: 'musiikkia', ine: 'musiikissa' },
+      'lintu': { gen: 'linnun', part: 'lintua', ine: 'linnussa', plNom: 'linnut', plGen: 'lintujen' },
+      'ranta': { gen: 'rannan', part: 'rantaa', ine: 'rannassa', plNom: 'rannat', plGen: 'rantojen' },
+      'koti': { gen: 'kodin', part: 'kotia', ine: 'kodissa', plNom: 'kodit', plGen: 'kotien' },
+      'paikka': { gen: 'paikan', part: 'paikkaa', ine: 'paikassa', plNom: 'paikat', plGen: 'paikkojen' },
+      'kauppa': { gen: 'kaupan', part: 'kauppaa', ine: 'kaupassa', plNom: 'kaupat', plGen: 'kauppojen' },
+      'ruoka': { gen: 'ruoan', part: 'ruokaa', ine: 'ruoassa', plNom: 'ruoat', plGen: 'ruokien' },
+      'leipä': { gen: 'leivän', part: 'leipää', ine: 'leivässä', plNom: 'leivät', plGen: 'leipien' },
+      'poika': { gen: 'pojan', part: 'poikaa', ine: 'pojassa', plNom: 'pojat', plGen: 'poikien' },
+      'tieto': { gen: 'tiedon', part: 'tietoa', ine: 'tiedossa', plNom: 'tiedot', plGen: 'tietojen' },
+      'tiedote': { gen: 'tiedotteen', part: 'tiedotetta', ine: 'tiedotteessa', plNom: 'tiedotteet', plGen: 'tiedotteiden' },
+      'kirja': { gen: 'kirjan', part: 'kirjaa', ine: 'kirjassa', plNom: 'kirjat', plGen: 'kirjojen' },
+      'sana': { gen: 'sanan', part: 'sanaa', ine: 'sanassa', plNom: 'sanat', plGen: 'sanojen' }
+    };
+
+    function fiWeakenKPT(stem) {
+      // Apply Finnish consonant gradation (weak grade) to the final syllable boundary
+      const m = stem.match(/^(.*?)([bcdfghjklmnpqrstvwxz]+)([aeiouyäö])$/i);
+      if (!m) return stem;
+      const [, pre, cons, v] = m;
+      const map = { kk: 'k', pp: 'p', tt: 't', nk: 'ng', nt: 'nn', mp: 'mm', lt: 'll', rt: 'rr' };
+      if (map[cons]) return pre + map[cons] + v;
+      return stem;
+    }
+
+    function inflectFinnishNoun(base, morph, entry) {
+      if (!morph || (!morph.plural && !morph.caseType)) return base;
+      const lower = base.toLowerCase();
+      const isCap = base[0] && base[0] === base[0].toUpperCase() && base[0] !== base[0].toLowerCase();
+      const ov = FI_NOUN_OVERRIDES[lower];
+      const a = fiHarmony(lower);
+
+      function finish(res) {
+        return isCap ? res.charAt(0).toUpperCase() + res.slice(1) : res;
+      }
+
+      // Check override table first
+      if (ov) {
+        if (!morph.plural) {
+          if (morph.caseType === 'gen' && ov.gen) return finish(ov.gen);
+          if (morph.caseType === 'part' && ov.part) return finish(ov.part);
+          if (morph.caseType === 'ine' && (ov.langTra || ov.ine)) return finish(ov.langTra || ov.ine);
+        } else {
+          if (!morph.caseType && ov.plNom) return finish(ov.plNom);
+          if (morph.caseType === 'gen' && ov.plGen) return finish(ov.plGen);
+          if (morph.caseType === 'part' && ov.plPart) return finish(ov.plPart);
+          if (morph.caseType === 'ine' && ov.plIne) return finish(ov.plIne);
+        }
+      }
+
+      // Multi-word Finnish noun phrases (e.g. "hyvä päivä"): inflect the head word
+      if (lower.includes(' ')) {
+        const words = base.split(' ');
+        const last = words.pop();
+        return [...words, inflectFinnishNoun(last, morph, entry)].join(' ');
+      }
+
+      // -nen nouns (suomalainen, nainen, ihminen, uutinen)
+      if (lower.endsWith('nen') && lower.length > 4) {
+        const root = base.slice(0, -3);
+        if (!morph.plural) {
+          if (morph.caseType === 'gen') return root + 'sen';
+          if (morph.caseType === 'part') return root + 'st' + a;
+          if (morph.caseType === 'ine') return root + 'sess' + a;
+        } else {
+          if (!morph.caseType) return root + 'set';
+          if (morph.caseType === 'gen') return root + 'sten';
+          if (morph.caseType === 'part') return root + 'si' + a;
+          if (morph.caseType === 'ine') return root + 'siss' + a;
+        }
+      }
+
+      // -us/-ys/-os/-es nouns (kirjoitus, kysymys, muutos)
+      if (/(us|ys|os|ös|es)$/.test(lower) && lower.length > 4) {
+        const root = base.slice(0, -1);
+        if (!morph.plural) {
+          if (morph.caseType === 'gen') return root + 'ksen';
+          if (morph.caseType === 'part') return base + 't' + a;
+          if (morph.caseType === 'ine') return root + 'ksess' + a;
+        } else {
+          if (!morph.caseType) return root + 'kset';
+          if (morph.caseType === 'gen') return root + 'sten';
+          if (morph.caseType === 'part') return root + 'ksi' + a;
+          if (morph.caseType === 'ine') return root + 'ksiss' + a;
+        }
+      }
+
+      // General vowel-final Finnish noun rules
+      if (/[aeiouyäö]$/.test(lower)) {
+        const weak = fiWeakenKPT(base);
+        if (!morph.plural) {
+          if (morph.caseType === 'gen') return weak + 'n';
+          if (morph.caseType === 'part') return base + a;
+          if (morph.caseType === 'ine') return weak + 'ss' + a;
+        } else {
+          if (!morph.caseType) return weak + 't';
+          if (morph.caseType === 'gen') {
+            if (lower.endsWith('a') || lower.endsWith('ä')) return base.slice(0, -1) + (a === 'a' ? 'ojen' : 'ien');
+            return base + 'jen';
+          }
+          if (morph.caseType === 'part') {
+            if (lower.endsWith('a') || lower.endsWith('ä')) return base.slice(0, -1) + (a === 'a' ? 'oja' : 'iä');
+            return base + 'j' + a;
+          }
+          if (morph.caseType === 'ine') {
+            if (lower.endsWith('a') || lower.endsWith('ä')) return weak.slice(0, -1) + (a === 'a' ? 'oissa' : 'issä');
+            return weak + 'iss' + a;
+          }
+        }
+      }
+      return base;
+    }
+
+    const FI_VERB_OVERRIDES = {
+      'olla': { '1sg': 'olen', '2sg': 'olet', '3sg': 'on', '1pl': 'olemme', '2pl': 'olette', '3pl': 'ovat' },
+      'tietää': { '1sg': 'tiedän', '2sg': 'tiedät', '3sg': 'tietää', '1pl': 'tiedämme', '2pl': 'tiedätte', '3pl': 'tietävät' },
+      'tehdä': { '1sg': 'teen', '2sg': 'teet', '3sg': 'tekee', '1pl': 'teemme', '2pl': 'teette', '3pl': 'tekevät' },
+      'nähdä': { '1sg': 'näen', '2sg': 'näet', '3sg': 'näkee', '1pl': 'näemme', '2pl': 'näette', '3pl': 'näkevät' },
+      'syödä': { '1sg': 'syön', '2sg': 'syöt', '3sg': 'syö', '1pl': 'syömme', '2pl': 'syötte', '3pl': 'syövät' },
+      'juoda': { '1sg': 'juon', '2sg': 'juot', '3sg': 'juo', '1pl': 'juomme', '2pl': 'juotte', '3pl': 'juovat' },
+      'mennä': { '1sg': 'menen', '2sg': 'menet', '3sg': 'menee', '1pl': 'menemme', '2pl': 'menette', '3pl': 'menevät' },
+      'tulla': { '1sg': 'tulen', '2sg': 'tulet', '3sg': 'tulee', '1pl': 'tulemme', '2pl': 'tulette', '3pl': 'tulevat' },
+      'pitää': { '1sg': 'pidän', '2sg': 'pidät', '3sg': 'pitää', '1pl': 'pidämme', '2pl': 'pidätte', '3pl': 'pitävät' },
+      'antaa': { '1sg': 'annan', '2sg': 'annat', '3sg': 'antaa', '1pl': 'annamme', '2pl': 'annatte', '3pl': 'antavat' },
+      'puhua': { '1sg': 'puhun', '2sg': 'puhut', '3sg': 'puhuu', '1pl': 'puhumme', '2pl': 'puhutte', '3pl': 'puhuvat' },
+      'elää': { '1sg': 'elän', '2sg': 'elät', '3sg': 'elää', '1pl': 'elämme', '2pl': 'elätte', '3pl': 'elävät' },
+      'saada': { '1sg': 'saan', '2sg': 'saat', '3sg': 'saa', '1pl': 'saamme', '2pl': 'saatte', '3pl': 'saavat' },
+      'viedä': { '1sg': 'vien', '2sg': 'viet', '3sg': 'vie', '1pl': 'viemme', '2pl': 'viette', '3pl': 'vievät' },
+      'kuolla': { '1sg': 'kuolen', '2sg': 'kuolet', '3sg': 'kuolee', '1pl': 'kuolemme', '2pl': 'kuolette', '3pl': 'kuolevat' },
+      'kuulla': { '1sg': 'kuulen', '2sg': 'kuulet', '3sg': 'kuulee', '1pl': 'kuulemme', '2pl': 'kuolette', '3pl': 'kuulevat' }
+    };
+
+    function conjugateFinnishVerb(inf, person) {
+      if (!person) return inf;
+      const lower = inf.toLowerCase();
+      if (FI_VERB_OVERRIDES[lower]) return FI_VERB_OVERRIDES[lower][person] || inf;
+      if (lower.includes(' ')) return inf;
+      const a = fiHarmony(lower);
+      const endings = { '1sg': 'n', '2sg': 't', '3sg': '', '1pl': 'mme', '2pl': 'tte', '3pl': 'v' + a + 't' };
+
+      // Type 1: ends in VV (two vowels, final is a/ä) e.g. rakastaa, sanoa, kysyä, kirjoittaa
+      if (/[aeiouyäö][aä]$/.test(lower)) {
+        const strong = lower.slice(0, -1);
+        const weak = fiWeakenKPT(strong);
+        if (person === '3sg') return strong + strong.slice(-1);
+        if (person === '3pl') return strong + endings['3pl'];
+        return weak + endings[person];
+      }
+      // Type 4: -ta/-tä preceded by vowel (e.g. pelata, osata, vihata, haluta)
+      if (/[aeiouyäö]t[aä]$/.test(lower) && lower.length > 4) {
+        const stem = lower.slice(0, -2) + a;
+        if (person === '3sg') return stem + (stem.endsWith(a + a) ? '' : a);
+        return stem + endings[person];
+      }
+      return inf;
+    }
+
+    // --- ENGLISH MORPHOLOGICAL SYNTHESIS (Inflect English outputs naturally) ---
+    const EN_PLURAL_OVERRIDES = {
+      man: 'men', woman: 'women', person: 'people', fish: 'fish', wolf: 'wolves',
+      life: 'lives', berry: 'berries', city: 'cities', country: 'countries', story: 'stories',
+      family: 'families', party: 'parties', dictionary: 'dictionaries', enemy: 'enemies'
+    };
+
+    function inflectEnglishNoun(base, morph, entry) {
+      let w = base.replace(/^the\s+/i, '');
+      if (!morph || (!morph.plural && !morph.caseType)) return w;
+
+      const lower = w.toLowerCase();
+
+      // Special case: pronoun siä -> siäse ("in it")
+      if (entry && entry.lokiliLower === 'siä' && morph.caseType === 'ine') return 'in it';
+
+      // Pluralize
+      if (morph.plural) {
+        if (EN_PLURAL_OVERRIDES[lower]) {
+          w = EN_PLURAL_OVERRIDES[lower];
+        } else if (/(s|sh|ch|x|z)$/i.test(w)) {
+          w = w + 'es';
+        } else if (/[^aeiou]y$/i.test(w)) {
+          w = w.slice(0, -1) + 'ies';
+        } else {
+          w = w + 's';
+        }
+      }
+
+      // Case realization
+      if (morph.caseType === 'gen') {
+        return w.endsWith('s') ? `${w}'` : `${w}'s`;
+      }
+      if (morph.caseType === 'ine') {
+        // Language names: "Finnish language" -> "in Finnish"
+        if (entry && entry.cat === 'language' && /\blanguage$/i.test(w)) {
+          return 'in ' + w.replace(/\s+language$/i, '');
+        }
+        return `in ${w}`;
+      }
+      if (morph.caseType === 'part') {
+        // Animate/people/places take "to ...", direct objects stay clean
+        if (entry && (entry.cat === 'people' || (entry.cat === 'nature' && /^[A-Z]/.test(entry.lokili)))) {
+          return `to ${w}`;
+        }
+        return w;
+      }
+      return w;
+    }
+
+    function conjugateEnglishVerb(rawInf, person) {
+      const bare = rawInf.replace(/^to\s+/i, '').trim();
+      if (!person) return bare;
+      if (bare === 'be') {
+        if (person === '1sg') return 'am';
+        if (person === '3sg') return 'is';
+        return 'are';
+      }
+      if (bare === 'have') return person === '3sg' ? 'has' : 'have';
+      if (person === '3sg' && !bare.includes(' ')) {
+        if (/(s|sh|ch|x|z|o)$/i.test(bare)) return bare + 'es';
+        if (/[^aeiou]y$/i.test(bare)) return bare.slice(0, -1) + 'ies';
+        return bare + 's';
+      }
+      return bare;
+    }
+
+    /**
+     * Apply Lokili inflection to a matched lexicon entry (for FI/EN -> Lokili)
+     */
+    function applyLokiliInflection(entry, morph, prevWasQuantifier) {
+      if (!entry) return '';
+      const base = entry.lokili;
+      if (!morph || entry.cat === 'pronouns') {
+        // Pronouns only take -se (e.g. siä -> siäse)
+        if (morph && morph.caseType === 'ine' && !base.endsWith('se')) return base + 'se';
+        return base;
+      }
+      const infl = inflectLokiliWord(base);
+      if (!infl || infl.isVerb) return base;
+
+      // Official Lokili rule: after numbers > 1 or quantifiers (mita, vähä), noun stays singular
+      const usePlural = morph.plural && !prevWasQuantifier;
+
+      if (usePlural) {
+        if (morph.caseType === 'gen') return infl.pluralGenitive;
+        if (morph.caseType === 'part') return infl.avoidsNu ? infl.plural : infl.pluralTarget;
+        if (morph.caseType === 'ine') return infl.pluralState;
+        return infl.plural;
+      } else {
+        if (morph.caseType === 'gen') return infl.genitive;
+        if (morph.caseType === 'part') return infl.avoidsNu ? base : `${base}nu`;
+        if (morph.caseType === 'ine') return infl.state;
+        return base;
+      }
+    }
+
+    /**
      * Looks up a single Lokili token, stripping grammatical suffixes (-se, -nu, -ne, -e)
      * and reduplicated plurals (e.g., soma-somane -> soma + PL + GEN)
      */
     function analyzeLokiliToken(rawToken) {
-      const clean = rawToken.toLowerCase().replace(/[.,!?;:"”„()—–]/g, '');
+      const punc = splitPunctuation(rawToken);
+      const clean = punc.core.toLowerCase();
       if (!clean) return null;
 
       // 1. Direct exact match
       const exact = LEXICON.find(x => x.lokiliLower === clean);
-      if (exact) return { token: rawToken, entry: exact, tags: [] };
+      if (exact) return { token: rawToken, ...punc, entry: exact, morph: { plural: false, caseType: null } };
 
-      // 2. Check reduplicated plural (e.g. soma-soma, soma-somane, tetu-sanu-sanu)
-      let stem = clean;
-
-      // Strip trailing case suffixes (-se, -nu, -ne)
-      const trySuffixes = [
-        { suf: 'se', tag: uiLang === 'fi' ? '-SE (iness./tila)' : '-SE (in/state)' },
-        { suf: 'nu', tag: uiLang === 'fi' ? '-NU (kohde/part.)' : '-NU (target/part.)' },
-        { suf: 'ne', tag: uiLang === 'fi' ? '-NE (genetiivi)' : '-NE (genitive)' }
-      ];
-
+      // Helper to check stem, -e genitive, and reduplication
       function findStem(candidate) {
-        // Direct hit
         let hit = LEXICON.find(x => x.lokiliLower === candidate);
-        if (hit) return { entry: hit, extraTags: [] };
+        if (hit) return { entry: hit, plural: false, caseType: null, suffix: null };
 
         // Check -e genitive replacement (e.g., loke -> loki, vale -> valu, kive -> kivi)
         if (candidate.endsWith('e') && candidate.length > 2) {
           const baseI = candidate.slice(0, -1) + 'i';
           const baseU = candidate.slice(0, -1) + 'u';
           hit = LEXICON.find(x => x.lokiliLower === baseI || x.lokiliLower === baseU);
-          if (hit) return { entry: hit, extraTags: [uiLang === 'fi' ? '-E (genetiivi)' : '-E (genitive)'] };
+          if (hit) return { entry: hit, plural: false, caseType: 'gen', suffix: 'e' };
         }
 
         // Check reduplication: word-word -> word, or pre-head-head -> pre-head
@@ -1965,7 +2386,7 @@
           if (parts.length >= 2 && parts[parts.length - 1] === parts[parts.length - 2]) {
             const singular = parts.slice(0, -1).join('-');
             const sub = findStem(singular);
-            if (sub) return { entry: sub.entry, extraTags: [uiLang === 'fi' ? 'MONIKKO' : 'PLURAL', ...sub.extraTags] };
+            if (sub) return { ...sub, plural: true };
           }
           if (parts.length >= 2) {
             const last = parts[parts.length - 1];
@@ -1973,53 +2394,93 @@
             if (last.endsWith('e') && (last.slice(0, -1) + 'i' === prev || last.slice(0, -1) + 'u' === prev)) {
               const singular = parts.slice(0, -1).join('-');
               const sub = findStem(singular);
-              if (sub) return { entry: sub.entry, extraTags: [uiLang === 'fi' ? 'MONIKKO' : 'PLURAL', uiLang === 'fi' ? '-E (genetiivi)' : '-E (genitive)', ...sub.extraTags] };
+              if (sub) return { ...sub, plural: true, caseType: 'gen', suffix: 'e' };
             }
           }
         }
         return null;
       }
 
-      // First try without stripping suffix (handles -e genitive & bare plurals)
-      let found = findStem(stem);
-      if (found) return { token: rawToken, entry: found.entry, tags: found.extraTags };
+      // Try bare stem / -e genitive / reduplication
+      let found = findStem(clean);
+      if (found) {
+        return { token: rawToken, ...punc, entry: found.entry, morph: { plural: found.plural, caseType: found.caseType, suffix: found.suffix } };
+      }
 
-      // Then try stripping -se, -nu, -ne
-      for (const { suf, tag } of trySuffixes) {
-        if (stem.endsWith(suf) && stem.length > suf.length + 1) {
-          const stripped = stem.slice(0, -suf.length);
+      // Try stripping -se, -nu, -ne
+      const trySuffixes = [
+        { suf: 'se', caseType: 'ine' },
+        { suf: 'nu', caseType: 'part' },
+        { suf: 'ne', caseType: 'gen' }
+      ];
+
+      for (const { suf, caseType } of trySuffixes) {
+        if (clean.endsWith(suf) && clean.length > suf.length + 1) {
+          const stripped = clean.slice(0, -suf.length);
           const sub = findStem(stripped);
-          if (sub) return { token: rawToken, entry: sub.entry, tags: [...sub.extraTags, tag] };
+          if (sub) {
+            return { token: rawToken, ...punc, entry: sub.entry, morph: { plural: sub.plural, caseType, suffix: suf } };
+          }
         }
       }
 
-      return { token: rawToken, entry: null, tags: [] };
+      return { token: rawToken, ...punc, entry: null, morph: null };
     }
 
+    // Reverse lookup tables for common inflected Finnish & English verb/noun forms
+    const FI_COMMON_FORMS = {
+      'olen': 'olla', 'olet': 'olla', 'on': 'olla', 'olemme': 'olla', 'olette': 'olla', 'ovat': 'olla',
+      'tiedän': 'tietää', 'tiedät': 'tietää', 'tietää': 'tietää', 'tiedämme': 'tietää', 'tiedätte': 'tietää', 'tietävät': 'tietää',
+      'teen': 'tehdä', 'teet': 'tehdä', 'tekee': 'tehdä', 'teemme': 'tehdä', 'teette': 'tehdä', 'tekevät': 'tehdä',
+      'näen': 'nähdä', 'näet': 'nähdä', 'näkee': 'nähdä', 'näemme': 'nähdä', 'näette': 'nähdä', 'näkevät': 'nähdä',
+      'puhun': 'puhua', 'puhut': 'puhua', 'puhuu': 'puhua', 'puhumme': 'puhua', 'puhutte': 'puhua', 'puhuvat': 'puhua',
+      'rakastan': 'rakastaa', 'rakastat': 'rakastaa', 'rakastaa': 'rakastaa', 'rakastamme': 'rakastaa',
+      'pidän': 'pitää', 'pidät': 'pitää', 'pitää': 'pitää', 'pidämme': 'pitää',
+      'tykkään': 'tykätä', 'tykkäät': 'tykätä', 'tykkää': 'tykätä',
+      'syön': 'syödä', 'syöt': 'syödä', 'syö': 'syödä', 'syömme': 'syödä',
+      'juon': 'juoda', 'juot': 'juoda', 'juo': 'juoda', 'juomme': 'juoda',
+      'menen': 'mennä', 'menet': 'mennä', 'menee': 'mennä', 'menemme': 'mennä',
+      'tulen': 'tulla', 'tulet': 'tulla', 'tulee': 'tulla', 'tulemme': 'tulla',
+      'sanon': 'sanoa', 'sanot': 'sanoa', 'sanoo': 'sanoa', 'sanomme': 'sanoa',
+      'elän': 'elää', 'elät': 'elää', 'elää': 'elää', 'elämme': 'elää',
+      'asun': 'asua', 'asut': 'asua', 'asuu': 'asua', 'asumme': 'asua',
+      'haluan': 'toivoa', 'toivon': 'toivoa', 'uskon': 'uskoa', 'kirjoitan': 'kirjoittaa',
+      'kuulen': 'kuulla', 'kuuntelen': 'kuunnella', 'laulan': 'laulaa', 'soitan': 'soittaa',
+      'pelaan': 'pelata', 'ostan': 'ostaa', 'myyn': 'myydä', 'annan': 'antaa', 'saan': 'saada'
+    };
+
+    const EN_COMMON_FORMS = {
+      'am': 'to be', 'is': 'to be', 'are': 'to be',
+      'has': 'to have', 'does': 'to do', 'goes': 'to go',
+      'speaks': 'to speak', 'loves': 'to love', 'likes': 'to like', 'knows': 'to know',
+      'lives': 'to live', 'eats': 'to eat', 'drinks': 'to drink', 'sees': 'to see',
+      'makes': 'to make', 'gives': 'to give', 'gets': 'to get', 'comes': 'to come',
+      'sings': 'to sing', 'plays': 'to play', 'writes': 'to write', 'says': 'to say'
+    };
+
     /**
-     * Find best lexicon match for a Finnish or English word/phrase
+     * Find best lexicon match for a Finnish or English word/phrase (exact/near base lookup)
      */
-    function findByTranslation(query, lang) {
+    function findByTranslation(query, lang, strictExact = false) {
       const q = query.toLowerCase().replace(/[.,!?;:"”„()—–]/g, '').trim();
       if (!q) return null;
 
       let best = null;
       let bestScore = -1;
+      const qNoTo = q.replace(/^to\s+/, '');
 
       for (const item of LEXICON) {
         const text = lang === 'fi' ? item.fiLower : item.enLower;
-        // Split meanings by comma
-        const senses = text.split(',').map(s => s.trim().replace(/^to\s+/, ''));
-        const qNoTo = q.replace(/^to\s+/, '');
+        const senses = text.split(',').map(s => s.replace(/\s*\([^)]*\)/g, '').trim().replace(/^to\s+/, ''));
 
         for (let i = 0; i < senses.length; i++) {
           const s = senses[i];
           let score = -1;
           if (s === qNoTo || s === q) {
-            score = 100 - i; // Prioritize primary meaning
-          } else if (s.startsWith(qNoTo + ' ') || s.startsWith(q + ' (')) {
+            score = 100 - i;
+          } else if (!strictExact && (s.startsWith(qNoTo + ' ') || s.startsWith(q + ' '))) {
             score = 80 - i;
-          } else if (qNoTo.length >= 3 && s.includes(qNoTo)) {
+          } else if (!strictExact && qNoTo.length >= 4 && s.includes(qNoTo)) {
             score = 50 - i;
           }
           if (score > bestScore) {
@@ -2028,7 +2489,148 @@
           }
         }
       }
-      return bestScore >= 50 ? best : null;
+      return bestScore >= (strictExact ? 90 : 50) ? best : null;
+    }
+
+    /**
+     * Analyze an inflected Finnish word (e.g. lokin, Suomessa, suomalaisten, musiikkia, puhun)
+     */
+    function analyzeFinnishToken(rawToken) {
+      const punc = splitPunctuation(rawToken);
+      const clean = punc.core.toLowerCase();
+      if (!clean) return null;
+
+      // 1. Direct exact lexicon match
+      let hit = findByTranslation(clean, 'fi', true);
+      if (hit) return { token: rawToken, ...punc, entry: hit, morph: { plural: false, caseType: null } };
+
+      // 2. Check common conjugated Finnish verbs
+      if (FI_COMMON_FORMS[clean]) {
+        hit = findByTranslation(FI_COMMON_FORMS[clean], 'fi', true);
+        if (hit) return { token: rawToken, ...punc, entry: hit, morph: { plural: false, caseType: null } };
+      }
+
+      // 3. Check override noun forms (e.g. lokin -> lokki + gen, Suomessa -> Suomi + ine, suomeksi -> suomi + ine)
+      for (const [lemma, forms] of Object.entries(FI_NOUN_OVERRIDES)) {
+        const mapCheck = [
+          ['gen', false, 'gen'], ['part', false, 'part'], ['ine', false, 'ine'], ['langTra', false, 'ine'], ['all', false, 'part'],
+          ['plNom', true, null], ['plGen', true, 'gen'], ['plPart', true, 'part'], ['plIne', true, 'ine']
+        ];
+        for (const [k, plural, caseType] of mapCheck) {
+          if (forms[k] && forms[k].toLowerCase() === clean) {
+            hit = findByTranslation(lemma, 'fi', true);
+            if (hit) return { token: rawToken, ...punc, entry: hit, morph: { plural, caseType } };
+          }
+        }
+      }
+
+      // 4. Reverse-strip common Finnish case/plural suffixes
+      const fiSuffixRules = [
+        { re: /siss[aä]$/, rep: ['nen'], plural: true, caseType: 'ine' },
+        { re: /sess[aä]$/, rep: ['nen'], plural: false, caseType: 'ine' },
+        { re: /sten$/, rep: ['nen'], plural: true, caseType: 'gen' },
+        { re: /sen$/, rep: ['nen'], plural: false, caseType: 'gen' },
+        { re: /set$/, rep: ['nen'], plural: true, caseType: null },
+        { re: /st[aä]$/, rep: ['nen'], plural: false, caseType: 'part' },
+        { re: /selle$/, rep: ['nen'], plural: false, caseType: 'part' },
+        { re: /iss[aä]$/, rep: ['', 'a', 'ä', 'i'], plural: true, caseType: 'ine' },
+        { re: /ss[aä]$/, rep: ['', 'i'], plural: false, caseType: 'ine' },
+        { re: /ksi$/, rep: ['', 'i'], plural: false, caseType: 'ine' },
+        { re: /lle$/, rep: ['', 'i'], plural: false, caseType: 'part' },
+        { re: /ien$|jen$|ojen$|öjen$/, rep: ['', 'a', 'ä', 'i'], plural: true, caseType: 'gen' },
+        { re: /n$/, rep: ['', 'i'], plural: false, caseType: 'gen' },
+        { re: /t$/, rep: ['', 'i'], plural: true, caseType: null },
+        { re: /[aä]$/, rep: ['', 'i'], plural: false, caseType: 'part' }
+      ];
+
+      // Reverse KPT helper (lokin -> loki -> lokki, kaupungin -> kaupungi -> kaupunki)
+      function expandKPT(stem) {
+        const cands = [stem];
+        const rev = [
+          [/k([aeiouyäö])$/, 'kk$1'], [/p([aeiouyäö])$/, 'pp$1'], [/t([aeiouyäö])$/, 'tt$1'],
+          [/ng([aeiouyäö])$/, 'nk$1'], [/nn([aeiouyäö])$/, 'nt$1'], [/mm([aeiouyäö])$/, 'mp$1'],
+          [/ll([aeiouyäö])$/, 'lt$1'], [/rr([aeiouyäö])$/, 'rt$1'], [/d([aeiouyäö])$/, 't$1']
+        ];
+        for (const [re, rep] of rev) {
+          if (re.test(stem)) cands.push(stem.replace(re, rep));
+        }
+        return cands;
+      }
+
+      for (const rule of fiSuffixRules) {
+        if (rule.re.test(clean) && clean.length > 3) {
+          const baseStem = clean.replace(rule.re, '');
+          for (const rep of rule.rep) {
+            for (const cand of expandKPT(baseStem + rep)) {
+              if (cand.length < 2) continue;
+              const match = findByTranslation(cand, 'fi', true);
+              if (match) {
+                return { token: rawToken, ...punc, entry: match, morph: { plural: rule.plural, caseType: rule.caseType } };
+              }
+            }
+          }
+        }
+      }
+
+      // 5. Fallback loose search
+      hit = findByTranslation(clean, 'fi', false);
+      return { token: rawToken, ...punc, entry: hit, morph: hit ? { plural: false, caseType: null } : null };
+    }
+
+    /**
+     * Analyze an inflected English word (e.g. seagull's, Finns', birds, speaks)
+     */
+    function analyzeEnglishToken(rawToken) {
+      const punc = splitPunctuation(rawToken);
+      const clean = punc.core.toLowerCase();
+      if (!clean) return null;
+
+      // Possessive 's / s'
+      if (clean.endsWith("'s") || clean.endsWith("’s")) {
+        const stem = clean.slice(0, -2);
+        const hit = findByTranslation(stem, 'en', true) || findByTranslation(stem, 'en', false);
+        if (hit) return { token: rawToken, ...punc, entry: hit, morph: { plural: false, caseType: 'gen' } };
+      }
+      if (clean.endsWith("s'") || clean.endsWith("s’")) {
+        const stem = clean.slice(0, -2);
+        const hit = findByTranslation(stem, 'en', true) || findByTranslation(stem, 'en', false);
+        if (hit) return { token: rawToken, ...punc, entry: hit, morph: { plural: true, caseType: 'gen' } };
+      }
+
+      // Direct exact match
+      let hit = findByTranslation(clean, 'en', true);
+      if (hit) return { token: rawToken, ...punc, entry: hit, morph: { plural: false, caseType: null } };
+
+      // Common conjugated English verbs
+      if (EN_COMMON_FORMS[clean]) {
+        hit = findByTranslation(EN_COMMON_FORMS[clean], 'en', true);
+        if (hit) return { token: rawToken, ...punc, entry: hit, morph: { plural: false, caseType: null } };
+      }
+
+      // Reverse English irregular plurals
+      for (const [sg, pl] of Object.entries(EN_PLURAL_OVERRIDES)) {
+        if (pl === clean) {
+          hit = findByTranslation(sg, 'en', true);
+          if (hit) return { token: rawToken, ...punc, entry: hit, morph: { plural: true, caseType: null } };
+        }
+      }
+
+      // Regular English plural / 3sg -ies, -es, -s
+      const stripCands = [];
+      if (clean.endsWith('ies') && clean.length > 4) stripCands.push(clean.slice(0, -3) + 'y');
+      if (clean.endsWith('es') && clean.length > 3) stripCands.push(clean.slice(0, -2));
+      if (clean.endsWith('s') && clean.length > 2) stripCands.push(clean.slice(0, -1));
+
+      for (const cand of stripCands) {
+        hit = findByTranslation(cand, 'en', true);
+        if (hit) {
+          const isVerb = hit.ending === '-O';
+          return { token: rawToken, ...punc, entry: hit, morph: { plural: !isVerb, caseType: null } };
+        }
+      }
+
+      hit = findByTranslation(clean, 'en', false);
+      return { token: rawToken, ...punc, entry: hit, morph: hit ? { plural: false, caseType: null } : null };
     }
 
     function runTranslation() {
@@ -2053,8 +2655,8 @@
         let lokiliHits = 0, fiHits = 0, enHits = 0;
         for (const t of tokens) {
           if (analyzeLokiliToken(t)?.entry) lokiliHits++;
-          if (findByTranslation(t, 'fi')) fiHits++;
-          if (findByTranslation(t, 'en')) enHits++;
+          if (analyzeFinnishToken(t)?.entry) fiHits++;
+          if (analyzeEnglishToken(t)?.entry) enHits++;
         }
         if (lokiliHits >= fiHits && lokiliHits >= enHits && lokiliHits > 0) detected = 'lokili';
         else if (fiHits >= enHits) detected = 'fi';
@@ -2064,54 +2666,169 @@
       const rawTokens = raw.split(/\s+/).filter(Boolean);
       const glossItems = [];
 
-      // Greedy 2-word phrase check before single-word check
+      // Greedy 2-word phrase & English preposition ("in X", "to X", "of X") check
       let idx = 0;
       while (idx < rawTokens.length) {
         let matchedPhrase = false;
-        if (idx + 1 < rawTokens.length) {
-          const twoWords = (rawTokens[idx] + ' ' + rawTokens[idx + 1]).toLowerCase().replace(/[.,!?;:"”„]/g, '');
+
+        // English prepositions -> Lokili case suffixes!
+        if (detected === 'en' && idx + 1 < rawTokens.length) {
+          const prep = rawTokens[idx].toLowerCase();
+          if (['in', 'into', 'to', 'of'].includes(prep)) {
+            let targetIdx = idx + 1;
+            let rawSpan = rawTokens[idx];
+            if (targetIdx + 1 < rawTokens.length && ['the', 'a', 'an'].includes(rawTokens[targetIdx].toLowerCase())) {
+              rawSpan += ' ' + rawTokens[targetIdx];
+              targetIdx++;
+            }
+            const analyzedNext = analyzeEnglishToken(rawTokens[targetIdx]);
+            if (analyzedNext && analyzedNext.entry) {
+              const caseMap = { in: 'ine', into: 'ine', to: 'part', of: 'gen' };
+              glossItems.push({
+                token: `${rawSpan} ${rawTokens[targetIdx]}`,
+                lead: '',
+                trail: analyzedNext.trail,
+                entry: analyzedNext.entry,
+                morph: { plural: analyzedNext.morph?.plural || false, caseType: caseMap[prep] }
+              });
+              idx = targetIdx + 1;
+              matchedPhrase = true;
+            }
+          }
+          // Skip standalone English articles "the / a / an"
+          if (!matchedPhrase && ['the', 'a', 'an'].includes(prep)) {
+            idx++;
+            continue;
+          }
+        }
+
+        // Greedy 2-word phrase match (e.g. "kiva nosu", "hyvää huomenta", "good morning")
+        if (!matchedPhrase && idx + 1 < rawTokens.length) {
+          const p1 = splitPunctuation(rawTokens[idx]);
+          const p2 = splitPunctuation(rawTokens[idx + 1]);
+          const twoWords = `${p1.core} ${p2.core}`.toLowerCase();
           let phraseHit = null;
           if (detected === 'lokili') {
             phraseHit = LEXICON.find(x => x.lokiliLower === twoWords);
           } else {
-            phraseHit = findByTranslation(twoWords, detected);
+            phraseHit = findByTranslation(twoWords, detected, true);
           }
           if (phraseHit) {
-            glossItems.push({ token: rawTokens[idx] + ' ' + rawTokens[idx + 1], entry: phraseHit, tags: [uiLang === 'fi' ? 'FRAASI' : 'PHRASE'] });
+            glossItems.push({
+              token: `${rawTokens[idx]} ${rawTokens[idx + 1]}`,
+              lead: p1.lead,
+              trail: p2.trail,
+              entry: phraseHit,
+              morph: { phrase: true, plural: false, caseType: null }
+            });
             idx += 2;
             matchedPhrase = true;
           }
         }
+
         if (!matchedPhrase) {
           const tok = rawTokens[idx];
-          if (detected === 'lokili') {
-            const analyzed = analyzeLokiliToken(tok);
-            if (analyzed) glossItems.push(analyzed);
-          } else {
-            const cleanedTok = tok.replace(/[.,!?;:"”„()—–]/g, '');
-            if (cleanedTok) {
-              const hit = findByTranslation(tok, detected);
-              glossItems.push({ token: tok, entry: hit, tags: [] });
-            }
-          }
+          let analyzed = null;
+          if (detected === 'lokili') analyzed = analyzeLokiliToken(tok);
+          else if (detected === 'fi') analyzed = analyzeFinnishToken(tok);
+          else analyzed = analyzeEnglishToken(tok);
+          if (analyzed) glossItems.push(analyzed);
           idx++;
         }
       }
 
-      // Build synthesized primary translation lines
-      const lokiliLine = glossItems.map(g => g.entry ? g.entry.lokili : `[${g.token}]`).join(' ');
-      const fiLine = glossItems.map(g => {
-        if (!g.entry) return `[${g.token}]`;
-        const primary = g.entry.fi.split(',')[0].trim();
-        return g.tags.length ? `${primary} (${g.tags.join(', ')})` : primary;
-      }).join(' ');
-      const enLine = glossItems.map(g => {
-        if (!g.entry) return `[${g.token}]`;
-        const primary = g.entry.en.split(',')[0].trim();
-        return g.tags.length ? `${primary} (${g.tags.join(', ')})` : primary;
-      }).join(' ');
+      // Synthesize properly inflected sentences in all 3 languages!
+      const QUANTIFIERS = new Set(['katu', 'komu', 'nilu', 'viju', 'kutu', 'siju', 'köku', 'ahku', 'lovu', 'satu', 'tusu', 'miliju', 'mita', 'vähä']);
+      const PRONOUN_PERSON = { miä: '1sg', tiä: '2sg', siä: '3sg', mii: '1pl', tii: '2pl', sii: '3pl' };
+
+      let currentPerson = '3sg';
+      const lokiliParts = [];
+      const fiParts = [];
+      const enParts = [];
+
+      glossItems.forEach((g, i) => {
+        const prev = i > 0 ? glossItems[i - 1] : null;
+        const prevWasQuant = !!(prev && prev.entry && QUANTIFIERS.has(prev.entry.lokiliLower));
+
+        if (!g.entry) {
+          lokiliParts.push(`[${g.token}]`);
+          fiParts.push(`[${g.token}]`);
+          enParts.push(`[${g.token}]`);
+          return;
+        }
+
+        const lok = g.entry.lokiliLower;
+        // Track grammatical subject person for natural verb conjugation
+        if (PRONOUN_PERSON[lok]) {
+          currentPerson = PRONOUN_PERSON[lok];
+        } else if (g.entry.ending !== '-O' && g.entry.ending !== '-A' && g.entry.ending !== '-SA' && lok !== 'na' && lok !== 'aka' && lok !== 'va') {
+          if (g.morph?.plural) currentPerson = '3pl';
+          else if (!g.morph?.caseType) currentPerson = '3sg';
+        }
+
+        // 1. Lokili output
+        const lokWord = detected === 'lokili'
+          ? g.core || g.token
+          : applyLokiliInflection(g.entry, g.morph, prevWasQuant);
+        lokiliParts.push(`${g.lead || ''}${lokWord}${g.trail || ''}`);
+
+        // 2. Finnish output (inflected!)
+        let fiWord = getPrimarySense(g.entry, 'fi', false);
+        if (g.entry.ending === '-O' && !g.morph?.phrase) {
+          fiWord = conjugateFinnishVerb(fiWord, currentPerson);
+        } else if (!g.morph?.phrase) {
+          fiWord = inflectFinnishNoun(fiWord, g.morph, g.entry);
+        }
+        fiParts.push(`${g.lead || ''}${fiWord}${g.trail || ''}`);
+
+        // 3. English output (inflected!)
+        const preferEnNoun = !!(g.morph && (g.morph.plural || g.morph.caseType));
+        let enWord = getPrimarySense(g.entry, 'en', preferEnNoun);
+        if (g.entry.ending === '-O' && !g.morph?.phrase) {
+          enWord = conjugateEnglishVerb(enWord, currentPerson);
+        } else if (!g.morph?.phrase) {
+          enWord = inflectEnglishNoun(enWord, g.morph, g.entry);
+        }
+        enParts.push(`${g.lead || ''}${enWord}${g.trail || ''}`);
+
+        // Reset clause subject after sentence-ending punctuation
+        if (/[.!?]/.test(g.trail || '')) currentPerson = '3sg';
+      });
+
+      function polishSentence(parts) {
+        let s = parts.join(' ').trim();
+        if (!s) return s;
+        // Capitalize first letter of sentence and after . ! ?
+        s = s.charAt(0).toUpperCase() + s.slice(1);
+        s = s.replace(/([.!?]\s+)([a-zäöü])/g, (_, sep, ch) => sep + ch.toUpperCase());
+        return s;
+      }
+
+      const lokiliLine = detected === 'lokili' ? raw : polishSentence(lokiliParts);
+      const fiLine = detected === 'fi' ? raw : polishSentence(fiParts);
+      const enLine = detected === 'en' ? raw : polishSentence(enParts);
 
       const langNames = { lokili: 'Lokili', fi: 'Suomi', en: 'English' };
+
+      const fiCard = `
+        <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-300">🇫🇮 Suomi</span>
+            <button onclick="copyTextToClipboard('${escapeJs(fiLine)}')" class="p-1.5 rounded-lg bg-white dark:bg-slate-900 text-xs shadow-sm">📋</button>
+          </div>
+          <p class="text-sm font-semibold text-slate-800 dark:text-slate-100 leading-relaxed">${escapeHtml(fiLine)}</p>
+        </div>
+      `;
+
+      const enCard = `
+        <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-300">🇬🇧 English</span>
+            <button onclick="copyTextToClipboard('${escapeJs(enLine)}')" class="p-1.5 rounded-lg bg-white dark:bg-slate-900 text-xs shadow-sm">📋</button>
+          </div>
+          <p class="text-sm font-semibold text-slate-800 dark:text-slate-100 leading-relaxed">${escapeHtml(enLine)}</p>
+        </div>
+      `;
 
       out.innerHTML = `
         <div class="flex items-center justify-between text-xs text-slate-500 px-1">
@@ -2124,30 +2841,13 @@
             <div class="flex items-center justify-between">
               <span class="text-xs font-extrabold uppercase tracking-wider text-nordic-700 dark:text-nordic-300">🕊️ Lokili</span>
               <div class="flex gap-1">
-                <button onclick="speakLokili('${escapeJs(detected === 'lokili' ? raw : lokiliLine.replace(/[\[\]]/g, ''))}')" class="p-1.5 rounded-lg bg-white dark:bg-slate-900 hover:bg-nordic-100 text-xs shadow-sm">🔊</button>
-                <button onclick="copyTextToClipboard('${escapeJs(detected === 'lokili' ? raw : lokiliLine)}')" class="p-1.5 rounded-lg bg-white dark:bg-slate-900 hover:bg-nordic-100 text-xs shadow-sm">📋</button>
+                <button onclick="speakLokili('${escapeJs(lokiliLine.replace(/[\[\]]/g, ''))}')" class="p-1.5 rounded-lg bg-white dark:bg-slate-900 hover:bg-nordic-100 text-xs shadow-sm">🔊</button>
+                <button onclick="copyTextToClipboard('${escapeJs(lokiliLine)}')" class="p-1.5 rounded-lg bg-white dark:bg-slate-900 hover:bg-nordic-100 text-xs shadow-sm">📋</button>
               </div>
             </div>
-            <p class="text-base font-extrabold text-slate-900 dark:text-white leading-snug">${escapeHtml(detected === 'lokili' ? raw : lokiliLine)}</p>
+            <p class="text-base font-extrabold text-slate-900 dark:text-white leading-snug">${escapeHtml(lokiliLine)}</p>
           </div>
-
-          <!-- Finnish Result -->
-          <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-300">🇫🇮 Suomi</span>
-              <button onclick="copyTextToClipboard('${escapeJs(fiLine)}')" class="p-1.5 rounded-lg bg-white dark:bg-slate-900 text-xs shadow-sm">📋</button>
-            </div>
-            <p class="text-sm font-semibold text-slate-800 dark:text-slate-100 leading-relaxed">${escapeHtml(fiLine)}</p>
-          </div>
-
-          <!-- English Result -->
-          <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-300">🇬🇧 English</span>
-              <button onclick="copyTextToClipboard('${escapeJs(enLine)}')" class="p-1.5 rounded-lg bg-white dark:bg-slate-900 text-xs shadow-sm">📋</button>
-            </div>
-            <p class="text-sm font-semibold text-slate-800 dark:text-slate-100 leading-relaxed">${escapeHtml(enLine)}</p>
-          </div>
+          ${uiLang === 'fi' ? fiCard + enCard : enCard + fiCard}
         </div>
 
         <!-- Word-by-word Interlinear Breakdown -->
@@ -2163,15 +2863,22 @@
                   </div>
                 `;
               }
+              const tags = getMorphTags(g.morph);
+              const primGloss = uiLang === 'fi'
+                ? g.entry.fi.split(',').slice(0, 2).join(', ')
+                : g.entry.en.split(',').slice(0, 2).join(', ');
+              const secGloss = uiLang === 'fi'
+                ? g.entry.en.split(',').slice(0, 2).join(', ')
+                : g.entry.fi.split(',').slice(0, 2).join(', ');
               return `
                 <button onclick="openWordModal('${g.entry.id}')" class="text-left px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-nordic-500 transition-all shadow-sm max-w-xs">
                   <div class="flex items-center gap-1.5 flex-wrap">
                     <span class="text-sm font-extrabold text-nordic-700 dark:text-nordic-300">${escapeHtml(g.entry.lokili)}</span>
                     ${g.token.toLowerCase().replace(/[.,!?]/g,'') !== g.entry.lokiliLower ? `<span class="text-[10px] text-slate-400">← ${escapeHtml(g.token)}</span>` : ''}
-                    ${g.tags.map(t => `<span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300">${escapeHtml(t)}</span>`).join('')}
+                    ${tags.map(t => `<span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300">${escapeHtml(t)}</span>`).join('')}
                   </div>
-                  <div class="text-xs font-semibold text-slate-700 dark:text-slate-200 mt-1 truncate">${escapeHtml(g.entry.fi.split(',').slice(0, 2).join(', '))}</div>
-                  <div class="text-[11px] text-slate-500 dark:text-slate-400 truncate">${escapeHtml(g.entry.en.split(',').slice(0, 2).join(', '))}</div>
+                  <div class="text-xs font-semibold text-slate-700 dark:text-slate-200 mt-1 truncate">${escapeHtml(primGloss)}</div>
+                  <div class="text-[11px] text-slate-500 dark:text-slate-400 truncate">${escapeHtml(secGloss)}</div>
                 </button>
               `;
             }).join('')}
@@ -2271,9 +2978,9 @@
         frontBadge.textContent = 'LOKILI';
         frontText.textContent = item.lokili;
         frontSub.textContent = formatSyllables(item.lokili);
-        backBadge.textContent = 'SUOMI & ENGLISH';
-        backPrim.textContent = item.fi;
-        backSec.textContent = item.en;
+        backBadge.textContent = uiLang === 'fi' ? 'SUOMI & ENGLISH' : 'ENGLISH & SUOMI';
+        backPrim.textContent = uiLang === 'fi' ? item.fi : item.en;
+        backSec.textContent = uiLang === 'fi' ? item.en : item.fi;
       } else if (dir === 'fi-lokili') {
         frontBadge.textContent = 'SUOMI';
         frontText.textContent = item.fi.split(',').slice(0, 3).join(', ');
@@ -2335,7 +3042,7 @@
       const speakBtn = document.getElementById('quiz-speak-btn');
 
       if (dir === 'lokili-fi') {
-        qLang.textContent = 'LOKILI → SUOMI';
+        qLang.textContent = uiLang === 'fi' ? 'LOKILI → SUOMI' : 'LOKILI → ENGLISH';
         qText.textContent = item.lokili;
         speakBtn.classList.remove('hidden');
       } else if (dir === 'fi-lokili') {
@@ -2356,7 +3063,9 @@
 
       document.getElementById('quiz-options').innerHTML = options.map((opt, idx) => {
         const label = dir === 'lokili-fi'
-          ? `${opt.fi.split(',').slice(0, 2).join(', ')}  ·  ${opt.en.split(',')[0]}`
+          ? (uiLang === 'fi'
+            ? `${opt.fi.split(',').slice(0, 2).join(', ')}  ·  ${opt.en.split(',')[0]}`
+            : `${opt.en.split(',').slice(0, 2).join(', ')}  ·  ${opt.fi.split(',')[0]}`)
           : opt.lokili;
         return `
           <button id="qopt-${idx}" onclick="selectQuizOption(${idx}, '${opt.id}')" class="w-full text-left px-4 py-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 hover:border-nordic-400 font-semibold text-sm transition-all">
@@ -2437,8 +3146,157 @@
     }
 
     // =========================================================================
-    // 10. GRAMMAR INTERACTIVE TOOLS (INFLECTOR & NUMBER GENERATOR)
+    // 10. GRAMMAR GUIDE (BILINGUAL FI / EN) & INTERACTIVE TOOLS
     // =========================================================================
+    function renderGrammarGuide() {
+      const container = document.getElementById('grammar-guide-cards');
+      if (!container) return;
+
+      if (uiLang === 'en') {
+        container.innerHTML = `
+          <!-- 1. Word Endings -->
+          <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 space-y-3">
+            <h3 class="text-base font-extrabold flex items-center gap-2"><span class="w-7 h-7 rounded-lg bg-nordic-100 dark:bg-nordic-900/60 text-nordic-700 dark:text-nordic-300 flex items-center justify-center text-xs font-black">1</span> Word Endings</h3>
+            <p class="text-xs text-slate-600 dark:text-slate-400">Lokili is a simplified, logical language built on open syllables (CVCV) and strict word-ending rules. Knowing these endings helps you instantly understand any word's meaning and function:</p>
+            <ul class="space-y-1.5 text-sm">
+              <li class="flex items-start gap-2"><span class="px-2 py-0.5 rounded bg-sky-100 dark:bg-sky-900/50 text-sky-800 dark:text-sky-300 font-bold text-xs shrink-0">-A</span><span>Adjectives &amp; descriptions (<em>hupa</em> = funny, <em>usa</em> = new)</span></li>
+              <li class="flex items-start gap-2"><span class="px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300 font-bold text-xs shrink-0">-O</span><span>Verbs &amp; actions (<em>teko</em> = to do, <em>vano</em> = to be)</span></li>
+              <li class="flex items-start gap-2"><span class="px-2 py-0.5 rounded bg-teal-100 dark:bg-teal-900/50 text-teal-800 dark:text-teal-300 font-bold text-xs shrink-0">-I</span><span>Nature &amp; physical world (<em>kivi</em> = rock, <em>loki</em> = seagull)</span></li>
+              <li class="flex items-start gap-2"><span class="px-2 py-0.5 rounded bg-indigo-100 dark:bg-indigo-900/50 text-indigo-800 dark:text-indigo-300 font-bold text-xs shrink-0">-U</span><span>Abstract concepts &amp; human affairs (<em>saku</em> = time, <em>nahu</em> = money)</span></li>
+              <li class="flex items-start gap-2"><span class="px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300 font-bold text-xs shrink-0">-OJA</span><span>Professions &amp; doers (<em>juhtoja</em> = leader, <em>vitoja</em> = driver)</span></li>
+              <li class="flex items-start gap-2"><span class="px-2 py-0.5 rounded bg-purple-100 dark:bg-purple-900/50 text-purple-800 dark:text-purple-300 font-bold text-xs shrink-0">-SA</span><span>Derived adjectives (<em>nahusa</em> = financial, <em>samisa</em> = national)</span></li>
+            </ul>
+            <p class="text-xs text-slate-500 dark:text-slate-400 pt-2 border-t border-slate-100 dark:border-slate-800">
+              <strong>Note on Finno-Ugric vowels (Ä, Ö, Ü):</strong> Front vowels Ä, Ö, and Ü appear naturally in the first syllable (<em>päji</em> = fire, <em>lösi</em> = sleet, <em>püha</em> = sacred), while a few fundamental, archaic words also retain Ä and Ö in their final syllable (<em>emä</em> = mother, <em>isä</em> = father, <em>tämä</em> = this, <em>vähä</em> = few, <em>övö</em> = no) as historic exceptions.
+            </p>
+          </div>
+
+          <!-- 2. Cases & Suffixes -->
+          <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 space-y-3">
+            <h3 class="text-base font-extrabold flex items-center gap-2"><span class="w-7 h-7 rounded-lg bg-nordic-100 dark:bg-nordic-900/60 text-nordic-700 dark:text-nordic-300 flex items-center justify-center text-xs font-black">2</span> Cases &amp; Suffixes</h3>
+            <p class="text-xs text-slate-600 dark:text-slate-400">Because all words in Lokili end in an open vowel (CVCV), simple suffixes flow naturally in speech:</p>
+            <ul class="space-y-2 text-sm">
+              <li><strong class="text-nordic-700 dark:text-nordic-300">-E (Genitive for Nouns):</strong> For nouns ending in -I or -U, replace the final vowel with -E (<em>valu → vale</em> = of the government, <em>kivi → kive</em> = of the island).</li>
+              <li><strong class="text-nordic-700 dark:text-nordic-300">-NE (Genitive for Adjectives):</strong> Words ending in -A take -NE for ownership (<em>soma → somane</em> = of the Finn / Finn's).</li>
+              <li><strong class="text-nordic-700 dark:text-nordic-300">-NU (Target / Partitive / Allative):</strong> Indicates direction, target, or partitive (<em>soma → somanu</em> = to the Finn, <em>somi → sominu</em> = Finnish [partitive]).</li>
+              <li><strong class="text-nordic-700 dark:text-nordic-300">-SE (State / Translative / Inessive):</strong> Indicates location inside, state, or language (<em>hemu → hemuse</em> = in the community, <em>tünu → tünuse</em> = lost, <em>somi → somise</em> = in Finnish, <em>siä → siäse</em> = in it).</li>
+            </ul>
+            <p class="text-xs text-slate-500 dark:text-slate-400 pt-2 border-t border-slate-100 dark:border-slate-800">
+              <strong>Note on Direct Objects (-NU):</strong> In standard SVO sentences, a direct object may remain in its base form when clear from word order (<em>poso tähta tetu-sanu-sanu</em>; <em>konku sumo imu</em>). Use -NU for direction, target, or contrast (<em>pulo lokilinu na pulo siäse</em>). Base form is preferred for words ending in -nu (<em>sanu, lunu, konu</em>) to avoid <em>-nunu</em>.
+            </p>
+          </div>
+
+          <!-- 3. Plurals -->
+          <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 space-y-3">
+            <h3 class="text-base font-extrabold flex items-center gap-2"><span class="w-7 h-7 rounded-lg bg-nordic-100 dark:bg-nordic-900/60 text-nordic-700 dark:text-nordic-300 flex items-center justify-center text-xs font-black">3</span> Plurals</h3>
+            <p class="text-sm text-slate-700 dark:text-slate-300">Plurals are formed by repeating the word (reduplication). When declining a plural, only the second word takes the suffix:</p>
+            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/70 text-xs font-mono space-y-1">
+              <div>soma → <strong>soma-soma</strong> (Finns)</div>
+              <div>soma-soma → <strong>soma-somane</strong> (of the Finns / Finns')</div>
+              <div>soma-soma → <strong>soma-somanu</strong> (to the Finns)</div>
+              <div>tetu-sanu → <strong>tetu-sanu-sanu</strong> (announcements — head noun only!)</div>
+              <div>sanu-lamatu → <strong>sanu-lamatu-lamatu</strong> (dictionaries)</div>
+            </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400">
+              <strong>Exception — Numbers &amp; Quantifiers:</strong> After a number &gt; 1 (<em>katu</em>) or a quantifier (<em>mita, vähä</em>), the noun stays singular even with adjectives in between: <em>katu saku</em> (two moments), <em>mita ula hupa saku</em> (plenty of very fun moments).
+            </p>
+          </div>
+
+          <!-- 4. Numbers, CVCV Exceptions, Compounds & Pronouns -->
+          <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 space-y-3">
+            <h3 class="text-base font-extrabold flex items-center gap-2"><span class="w-7 h-7 rounded-lg bg-nordic-100 dark:bg-nordic-900/60 text-nordic-700 dark:text-nordic-300 flex items-center justify-center text-xs font-black">4</span> Numbers, CVCV Exceptions &amp; Pronouns</h3>
+            <p class="text-xs text-slate-600 dark:text-slate-400">
+              <strong>Numbers &amp; Counting:</strong> Cardinals end in <strong>-U</strong>, ordinals in <strong>-A</strong>. 11–19 use Ten + Unit (<em>lovu-üku</em> = 11), while 20–90 use Multiplier × Ten (<em>katu-lovu</em> = 20, <em>katu-lovu-üku</em> = 21 → <em>katu-lovu-üka</em> = 21st).
+            </p>
+            <p class="text-xs text-slate-600 dark:text-slate-400"><strong>Exceptions to the CVCV Rule (Substrate Influence):</strong> Six natural consonant pairs (h, s, n + k/t):</p>
+            <div class="flex flex-wrap gap-1.5 text-xs font-bold">
+              <span class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800">hk (ahku = nine)</span>
+              <span class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800">ht (lihta = simple)</span>
+              <span class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800">sk (esku = evening, west)</span>
+              <span class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800">st (pusto = to kill)</span>
+              <span class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800">nk (konku = hook, addiction)</span>
+              <span class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800">nt (lanti = coast, beach)</span>
+            </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400 pt-1 border-t border-slate-100 dark:border-slate-800">
+              <strong>Compound Words &amp; Vowel Collisions:</strong> Double vowels at compound seams are fully permitted (<em>ku + asu = kuasu</em> = what; <em>ku + imu = kuimu</em> = who).<br/>
+              <strong>Pronouns (Historic Irregularities):</strong> Personal pronouns retain older double vowels (<em>mii, tii</em>) and unique plural suffixes (<em>-te, -tu</em>).
+            </p>
+          </div>
+        `;
+      } else {
+        container.innerHTML = `
+          <!-- 1. Sanapäätteet -->
+          <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 space-y-3">
+            <h3 class="text-base font-extrabold flex items-center gap-2"><span class="w-7 h-7 rounded-lg bg-nordic-100 dark:bg-nordic-900/60 text-nordic-700 dark:text-nordic-300 flex items-center justify-center text-xs font-black">1</span> Sanapäätteet</h3>
+            <p class="text-xs text-slate-600 dark:text-slate-400">Lokili on yksinkertaistettu, looginen kieli, joka rakentuu avotavuista (CVCV) ja selkeistä sanapäätteistä. Päätteet paljastavat heti sanan sanaluokan ja merkitystyypin:</p>
+            <ul class="space-y-1.5 text-sm">
+              <li class="flex items-start gap-2"><span class="px-2 py-0.5 rounded bg-sky-100 dark:bg-sky-900/50 text-sky-800 dark:text-sky-300 font-bold text-xs shrink-0">-A</span><span>Adjektiivit &amp; kuvaukset (<em>hupa</em> = hauska, <em>usa</em> = uusi)</span></li>
+              <li class="flex items-start gap-2"><span class="px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300 font-bold text-xs shrink-0">-O</span><span>Verbit &amp; tekeminen (<em>teko</em> = tehdä, <em>vano</em> = olla)</span></li>
+              <li class="flex items-start gap-2"><span class="px-2 py-0.5 rounded bg-teal-100 dark:bg-teal-900/50 text-teal-800 dark:text-teal-300 font-bold text-xs shrink-0">-I</span><span>Luonto &amp; fyysinen maailma (<em>kivi</em> = saari/kallio, <em>loki</em> = lokki)</span></li>
+              <li class="flex items-start gap-2"><span class="px-2 py-0.5 rounded bg-indigo-100 dark:bg-indigo-900/50 text-indigo-800 dark:text-indigo-300 font-bold text-xs shrink-0">-U</span><span>Abstraktit käsitteet &amp; ihmisen asiat (<em>saku</em> = aika, <em>nahu</em> = raha)</span></li>
+              <li class="flex items-start gap-2"><span class="px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300 font-bold text-xs shrink-0">-OJA</span><span>Ammatit &amp; tekijät (<em>juhtoja</em> = johtaja, <em>vitoja</em> = kuljettaja)</span></li>
+              <li class="flex items-start gap-2"><span class="px-2 py-0.5 rounded bg-purple-100 dark:bg-purple-900/50 text-purple-800 dark:text-purple-300 font-bold text-xs shrink-0">-SA</span><span>Johdetut adjektiivit (<em>nahusa</em> = taloudellinen, <em>samisa</em> = kansallinen)</span></li>
+            </ul>
+            <p class="text-xs text-slate-500 dark:text-slate-400 pt-2 border-t border-slate-100 dark:border-slate-800">
+              <strong>Suomalais-ugrilaiset vokaalit (Ä, Ö, Ü):</strong> Etuvokaalit Ä, Ö ja Ü esiintyvät luontevasti ensitavussa (<em>päji</em> = tuli, <em>lösi</em> = räntä, <em>püha</em> = pyhä). Muutamat keskeiset, arkaaiset perussanat säilyttävät Ä:n tai Ö:n myös lopputavussa (<em>emä</em> = äiti, <em>isä</em> = isä, <em>tämä</em> = tämä, <em>vähä</em> = vähän, <em>övö</em> = ei) historiallisena poikkeuksena.
+            </p>
+          </div>
+
+          <!-- 2. Sijamuodot & Päätteet -->
+          <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 space-y-3">
+            <h3 class="text-base font-extrabold flex items-center gap-2"><span class="w-7 h-7 rounded-lg bg-nordic-100 dark:bg-nordic-900/60 text-nordic-700 dark:text-nordic-300 flex items-center justify-center text-xs font-black">2</span> Sijamuodot &amp; Päätteet</h3>
+            <p class="text-xs text-slate-600 dark:text-slate-400">Koska lokilin sanat päättyvät avoimeen vokaaliin (CVCV), sijapäätteet liittyvät sanoihin luontevasti:</p>
+            <ul class="space-y-2 text-sm">
+              <li><strong class="text-nordic-700 dark:text-nordic-300">-E (Substantiivien genetiivi):</strong> Jos substantiivi päättyy -I tai -U, vaihda loppuvokaali -E:ksi (<em>valu → vale</em> = hallituksen, <em>kivi → kive</em> = saaren).</li>
+              <li><strong class="text-nordic-700 dark:text-nordic-300">-NE (Adjektiivien genetiivi):</strong> -A-loppuiset sanat saavat omistusmuodossa päätteen -NE (<em>soma → somane</em> = suomalaisen).</li>
+              <li><strong class="text-nordic-700 dark:text-nordic-300">-NU (Kohde / Partitiivi / Allatiivi):</strong> Ilmaisee suuntaa, kohdetta tai partitiivia (<em>soma → somanu</em> = suomalaiselle, <em>somi → sominu</em> = suomea).</li>
+              <li><strong class="text-nordic-700 dark:text-nordic-300">-SE (Olomuoto / Inessiivi / Kieli):</strong> Ilmaisee sijaintia sisällä, olotilaa tai kieltä (<em>hemu → hemuse</em> = yhteisössä, <em>tünu → tünuse</em> = kadoksissa, <em>somi → somise</em> = suomeksi, <em>siä → siäse</em> = siinä).</li>
+            </ul>
+            <p class="text-xs text-slate-500 dark:text-slate-400 pt-2 border-t border-slate-100 dark:border-slate-800">
+              <strong>Huomio suorasta objektista (-NU):</strong> Tavallisessa SVO-lauseessa suora objekti voi jäädä perusmuotoon, kun sen rooli on sanajärjestyksestä selvä (<em>poso tähta tetu-sanu-sanu</em>; <em>konku sumo imu</em>). Päätettä -NU käytetään suuntaa, kohdetta tai kontrastia merkittäessä (<em>pulo lokilinu na pulo siäse</em>). Perusmuotoa suositaan -nu-loppuisissa sanoissa (<em>sanu, lunu, konu</em>) <em>-nunu</em>-lopun välttämiseksi.
+            </p>
+          </div>
+
+          <!-- 3. Monikko -->
+          <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 space-y-3">
+            <h3 class="text-base font-extrabold flex items-center gap-2"><span class="w-7 h-7 rounded-lg bg-nordic-100 dark:bg-nordic-900/60 text-nordic-700 dark:text-nordic-300 flex items-center justify-center text-xs font-black">3</span> Monikko</h3>
+            <p class="text-sm text-slate-700 dark:text-slate-300">Monikko muodostetaan toistamalla sana (reduplikaatio). Taivutuspääte lisätään vain jälkimmäiseen osaan:</p>
+            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/70 text-xs font-mono space-y-1">
+              <div>soma → <strong>soma-soma</strong> (suomalaiset)</div>
+              <div>soma-soma → <strong>soma-somane</strong> (suomalaisten)</div>
+              <div>soma-soma → <strong>soma-somanu</strong> (suomalaisille)</div>
+              <div>tetu-sanu → <strong>tetu-sanu-sanu</strong> (tiedotteet — yhdyssanassa vain pääsana toistuu!)</div>
+              <div>sanu-lamatu → <strong>sanu-lamatu-lamatu</strong> (sanakirjat)</div>
+            </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400">
+              <strong>Poikkeus — lukusanat &amp; määränilmaukset:</strong> Luvun (&gt; 1, esim. <em>katu</em>) tai määränilmauksen (<em>mita, vähä</em>) jälkeen substantiivi jää yksikköön, vaikka välissä olisi adjektiiveja: <em>katu saku</em> (kaksi hetkeä), <em>mita ula hupa saku</em> (paljon todella hauskoja hetkiä).
+            </p>
+          </div>
+
+          <!-- 4. Lukusanat, CVCV-poikkeukset & Pronominit -->
+          <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 space-y-3">
+            <h3 class="text-base font-extrabold flex items-center gap-2"><span class="w-7 h-7 rounded-lg bg-nordic-100 dark:bg-nordic-900/60 text-nordic-700 dark:text-nordic-300 flex items-center justify-center text-xs font-black">4</span> Lukusanat, CVCV-poikkeukset &amp; Pronominit</h3>
+            <p class="text-xs text-slate-600 dark:text-slate-400">
+              <strong>Lukusanat:</strong> Perusluvut päättyvät <strong>-U</strong> ja järjestysluvut <strong>-A</strong>. Luvut 11–19 muodostetaan yhteenlaskulla (<em>lovu-üku</em> = 11), kymmenet 20–90 kertolaskulla (<em>katu-lovu</em> = 20, <em>katu-lovu-üku</em> = 21 → <em>katu-lovu-üka</em> = 21.).
+            </p>
+            <p class="text-xs text-slate-600 dark:text-slate-400"><strong>CVCV-säännön poikkeukset (suomalais-ugrilainen substraatti):</strong> Kuusi luonnollista konsonanttiparia (h, s, n + k/t):</p>
+            <div class="flex flex-wrap gap-1.5 text-xs font-bold">
+              <span class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800">hk (ahku = yhdeksän)</span>
+              <span class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800">ht (lihta = helppo)</span>
+              <span class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800">sk (esku = ilta, länsi)</span>
+              <span class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800">st (pusto = tappaa)</span>
+              <span class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800">nk (konku = koukku)</span>
+              <span class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800">nt (lanti = ranta)</span>
+            </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400 pt-1 border-t border-slate-100 dark:border-slate-800">
+              <strong>Yhdyssanojen vokaalisaumat:</strong> Kaksoisvokaali sallitaan yhdyssanan saumassa (<em>ku + asu = kuasu</em> = mikä; <em>ku + imu = kuimu</em> = kuka).<br/>
+              <strong>Pronominit (historialliset epäsäännöllisyydet):</strong> Persoonapronominit edustavat vanhempaa kerrostumaa kaksoisvokaaleineen (<em>mii, tii</em>) ja -te/-tu-päätteineen.
+            </p>
+          </div>
+        `;
+      }
+    }
+
     function pickRandomInflectorWord() {
       const candidates = LEXICON.filter(x => ['-A', '-I', '-U', '-OJA', '-SA'].includes(x.ending));
       const pick = candidates[Math.floor(Math.random() * candidates.length)];
