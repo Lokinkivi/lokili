@@ -174,33 +174,47 @@
     <section id="tab-lexicon" class="tab-panel space-y-5">
       <!-- Search & Filter Bar -->
       <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-sm border border-slate-200 dark:border-slate-800 space-y-3">
-        <div class="flex flex-col sm:flex-row gap-3">
+        <div class="flex flex-col lg:flex-row gap-3">
           <div class="relative flex-1">
             <svg class="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
             <input id="search-input" type="text" oninput="renderLexicon()" placeholder="Hae lokiliksi, suomeksi tai englanniksi..." class="w-full pl-11 pr-10 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 border border-transparent focus:border-nordic-500 focus:bg-white dark:focus:bg-slate-900 focus:outline-none text-sm font-medium transition-all" />
             <button id="clear-search-btn" onclick="clearSearch()" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1">✕</button>
           </div>
-          <!-- Ending / POS Filter -->
-          <select id="ending-filter" onchange="renderLexicon()" class="px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 border border-transparent focus:border-nordic-500 focus:outline-none text-sm font-semibold text-slate-700 dark:text-slate-200 cursor-pointer">
-            <option value="all" data-i18n="filterAllEndings">Kaikki sanaluokat</option>
-            <option value="-A" data-i18n="optEndingA">-A • Adjektiivit</option>
-            <option value="-O" data-i18n="optEndingO">-O • Verbit</option>
-            <option value="-I" data-i18n="optEndingI">-I • Luonto & fyysinen</option>
-            <option value="-U" data-i18n="optEndingU">-U • Abstraktit & asiat</option>
-            <option value="-OJA" data-i18n="optEndingOJA">-OJA • Tekijät & ammatit</option>
-            <option value="-SA" data-i18n="optEndingSA">-SA • Johdetut adj.</option>
-          </select>
-          <!-- Favorites Toggle -->
-          <button id="fav-filter-btn" onclick="toggleFavFilter()" class="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-amber-50 dark:hover:bg-amber-900/20 text-sm font-semibold transition-colors">
-            <span id="fav-filter-star">☆</span>
-            <span data-i18n="favorites">Suosikit</span>
-            <span id="fav-count-badge" class="text-xs px-1.5 py-0.5 rounded-md bg-slate-200 dark:bg-slate-700">0</span>
-          </button>
+          <div class="grid grid-cols-1 sm:grid-cols-3 lg:flex gap-2.5">
+            <!-- Category Dropdown (All categories accessible in 1 click) -->
+            <select id="category-select" onchange="selectCategory(this.value)" class="px-3.5 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 border border-transparent focus:border-nordic-500 focus:outline-none text-sm font-semibold text-slate-700 dark:text-slate-200 cursor-pointer">
+              <!-- Dynamically populated -->
+            </select>
+            <!-- Ending / POS Filter -->
+            <select id="ending-filter" onchange="renderLexicon()" class="px-3.5 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 border border-transparent focus:border-nordic-500 focus:outline-none text-sm font-semibold text-slate-700 dark:text-slate-200 cursor-pointer">
+              <option value="all" data-i18n="filterAllEndings">Kaikki sanaluokat</option>
+              <option value="-A" data-i18n="optEndingA">-A • Adjektiivit</option>
+              <option value="-O" data-i18n="optEndingO">-O • Verbit</option>
+              <option value="-I" data-i18n="optEndingI">-I • Luonto & fyysinen</option>
+              <option value="-U" data-i18n="optEndingU">-U • Abstraktit & asiat</option>
+              <option value="-OJA" data-i18n="optEndingOJA">-OJA • Tekijät & ammatit</option>
+              <option value="-SA" data-i18n="optEndingSA">-SA • Johdetut adj.</option>
+            </select>
+            <!-- Favorites Toggle -->
+            <button id="fav-filter-btn" onclick="toggleFavFilter()" class="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-amber-50 dark:hover:bg-amber-900/20 text-sm font-semibold transition-colors shrink-0">
+              <span id="fav-filter-star">☆</span>
+              <span data-i18n="favorites">Suosikit</span>
+              <span id="fav-count-badge" class="text-xs px-1.5 py-0.5 rounded-md bg-slate-200 dark:bg-slate-700">0</span>
+            </button>
+          </div>
         </div>
 
-        <!-- Category Pills (Mona-Lise Pedersen "Kieli" inspired horizontal selector) -->
-        <div id="category-pills" class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1 pt-1">
-          <!-- Dynamically populated -->
+        <!-- Category Pills (All categories wrapped cleanly, collapsible on demand) -->
+        <div class="pt-2 border-t border-slate-100 dark:border-slate-800/80 space-y-2">
+          <div class="flex items-center justify-between gap-2 px-0.5">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500" data-i18n="categoriesLabel">Kategoriat</span>
+            <button id="toggle-cats-btn" onclick="toggleCategoryPills()" class="text-xs font-semibold text-nordic-600 dark:text-nordic-400 hover:underline focus:outline-none">
+              <!-- Dynamically populated -->
+            </button>
+          </div>
+          <div id="category-pills" class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+            <!-- Dynamically populated -->
+          </div>
         </div>
       </div>
 
@@ -1285,6 +1299,7 @@
     let activeTab = 'lexicon';
     let selectedCategory = 'all';
     let onlyFavorites = false;
+    let showCategoryPills = true;
     let favorites = new Set();
     try {
       favorites = new Set(JSON.parse(safeStorageGet('lokili_favs', '[]')));
@@ -1323,6 +1338,7 @@
         optEndingOJA: '-OJA • Tekijät & ammatit',
         optEndingSA: '-SA • Johdetut adj.',
         favorites: 'Suosikit',
+        categoriesLabel: 'Kategoriat',
         tapHint: 'Napauta sanaa nähdäksesi taivutukset & ääntämisen',
         noResultsTitle: 'Ei hakutuloksia',
         noResultsDesc: 'Kokeile toista hakusanaa tai poista suodattimet.',
@@ -1375,6 +1391,7 @@
         optEndingOJA: '-OJA • Doers & Professions',
         optEndingSA: '-SA • Derived Adjectives',
         favorites: 'Favorites',
+        categoriesLabel: 'Categories',
         tapHint: 'Tap any word for declensions & pronunciation',
         noResultsTitle: 'No matches found',
         noResultsDesc: 'Try another search term or clear active filters.',
@@ -1685,12 +1702,23 @@
     // 6. LEXICON RENDERING & FILTERING
     // =========================================================================
     function renderCategoryPills() {
+      // 1. Keep Category Dropdown in sync with all categories and active language
+      const catSelect = document.getElementById('category-select');
+      if (catSelect) {
+        catSelect.innerHTML = CATEGORIES.map(cat => {
+          const count = cat.id === 'all' ? LEXICON.length : (RAW_LEXICON[cat.id]?.length || 0);
+          return `<option value="${cat.id}">${cat.icon} ${uiLang === 'fi' ? cat.fi : cat.en} (${count})</option>`;
+        }).join('');
+        catSelect.value = selectedCategory;
+      }
+
+      // 2. Render all categories as wrapped quick-filter pills
       const container = document.getElementById('category-pills');
       container.innerHTML = CATEGORIES.map(cat => {
         const count = cat.id === 'all' ? LEXICON.length : (RAW_LEXICON[cat.id]?.length || 0);
         const active = selectedCategory === cat.id;
         return `
-          <button onclick="selectCategory('${cat.id}')" class="shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+          <button onclick="selectCategory('${cat.id}')" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
             active
               ? 'bg-nordic-600 text-white shadow-md shadow-nordic-600/20'
               : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
@@ -1701,6 +1729,20 @@
           </button>
         `;
       }).join('');
+
+      // 3. Apply show/hide state for the wrapped pill grid
+      container.classList.toggle('hidden', !showCategoryPills);
+      const toggleBtn = document.getElementById('toggle-cats-btn');
+      if (toggleBtn) {
+        toggleBtn.textContent = showCategoryPills
+          ? (uiLang === 'fi' ? 'Piilota painikkeet ▴' : 'Hide buttons ▴')
+          : (uiLang === 'fi' ? `Näytä kaikki (${CATEGORIES.length}) ▾` : `Show all (${CATEGORIES.length}) ▾`);
+      }
+    }
+
+    function toggleCategoryPills() {
+      showCategoryPills = !showCategoryPills;
+      renderCategoryPills();
     }
 
     function selectCategory(catId) {
