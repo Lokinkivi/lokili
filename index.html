@@ -133,10 +133,10 @@
   <main class="max-w-6xl mx-auto px-4 sm:px-6 pt-5">
 
     <!-- Motto Banner (Inspired by Official Lokili Flag Geometry & Colors) -->
-    <section class="relative overflow-hidden mb-6 rounded-2xl bg-gradient-to-br from-nordic-600 via-nordic-700 to-nordic-900 text-white p-4 sm:p-5 shadow-lg shadow-nordic-900/15 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border border-nordic-500/30">
-      <!-- Full Official Lokili Flag motif in right background -->
-      <div class="pointer-events-none absolute inset-y-0 right-0 w-56 md:w-64 opacity-20 hidden sm:block" aria-hidden="true">
-        <svg class="w-full h-full" viewBox="0 0 160 100" preserveAspectRatio="none">
+    <section class="relative overflow-hidden mb-6 rounded-2xl bg-gradient-to-br from-nordic-600 via-nordic-700 to-nordic-900 text-white p-4 sm:px-6 sm:py-6 shadow-lg shadow-nordic-900/15 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border border-nordic-500/30">
+      <!-- Full Official Lokili Flag motif in right background (strict 16:10 aspect ratio) -->
+      <div class="pointer-events-none absolute inset-y-0 right-0 h-full aspect-[16/10] opacity-20 hidden sm:flex items-center justify-end" aria-hidden="true">
+        <svg class="w-full h-full block" viewBox="0 0 160 100" preserveAspectRatio="xMaxYMid meet">
           <!-- Top red & bottom blue base fields -->
           <rect x="0" y="0" width="160" height="40" fill="#D91E0B"/>
           <rect x="0" y="40" width="160" height="60" fill="#0062CC"/>
