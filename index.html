@@ -134,14 +134,25 @@
 
     <!-- Motto Banner (Inspired by Official Lokili Flag Geometry & Colors) -->
     <section class="relative overflow-hidden mb-6 rounded-2xl bg-gradient-to-br from-nordic-600 via-nordic-700 to-nordic-900 text-white p-4 sm:p-5 shadow-lg shadow-nordic-900/15 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border border-nordic-500/30">
-      <!-- Subtle geometric flag motif in right background -->
-      <div class="pointer-events-none absolute inset-y-0 right-0 w-44 opacity-20 hidden sm:block" aria-hidden="true">
-        <svg class="w-full h-full" viewBox="0 0 120 100" preserveAspectRatio="none">
-          <rect x="30" y="0" width="90" height="38" fill="#D91E0B"/>
-          <rect x="44" y="26" width="18" height="12" fill="#FCD116"/>
-          <rect x="92" y="38" width="28" height="26" fill="#0F172A"/>
-          <rect x="92" y="76" width="14" height="24" fill="#FCD116"/>
-          <path d="M64 10h28v54h28v12H64z" fill="#FFFFFF"/>
+      <!-- Full Official Lokili Flag motif in right background -->
+      <div class="pointer-events-none absolute inset-y-0 right-0 w-56 md:w-64 opacity-20 hidden sm:block" aria-hidden="true">
+        <svg class="w-full h-full" viewBox="0 0 160 100" preserveAspectRatio="none">
+          <!-- Top red & bottom blue base fields -->
+          <rect x="0" y="0" width="160" height="40" fill="#D91E0B"/>
+          <rect x="0" y="40" width="160" height="60" fill="#0062CC"/>
+          <!-- Central yellow blocks on the horizon -->
+          <rect x="31.5" y="28" width="14.5" height="12" fill="#FCD116"/>
+          <rect x="59.5" y="28" width="14.5" height="12" fill="#FCD116"/>
+          <!-- Left & right black horizon bands -->
+          <rect x="0" y="40" width="4.5" height="22.5" fill="#000000"/>
+          <rect x="101" y="40" width="59" height="22.5" fill="#000000"/>
+          <!-- Bottom yellow stripes (far left & right pair) -->
+          <rect x="0" y="75" width="4.5" height="25" fill="#FCD116"/>
+          <rect x="101" y="75" width="11.8" height="25" fill="#FCD116"/>
+          <rect x="123.2" y="75" width="11.8" height="25" fill="#FCD116"/>
+          <!-- Left & right white geometric L-figures -->
+          <path d="M4.5 12.5h27V75H0V62.5h4.5z" fill="#FFFFFF"/>
+          <path d="M74 12.5h27V62.5H160V75H74z" fill="#FFFFFF"/>
         </svg>
       </div>
       <!-- Thin red & gold left accent bar -->
