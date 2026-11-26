@@ -2124,6 +2124,71 @@
     const WATER_SEA_WORDS = new Set(['meli', 'melisa', 'lanti', 'lahti', 'vesi', 'lati', 'puto', 'putu', 'kalo']);
     const TIME_CONTEXT_WORDS = new Set(['tämä', 'toma', 'usa', 'vasa', 'joka', 'saku', 'lunu', 'kuvu', 'iku']);
     const FI_MASS_NOUNS = new Set(['musiikki', 'vesi', 'maito', 'kahvi', 'tee', 'ruoka', 'leipä', 'liha', 'aika', 'raha', 'rakkaus', 'rauha', 'lumi', 'sade', 'jää', 'tieto', 'kulta', 'savi']);
+    const NON_GRADABLE_A = new Set([
+      'tämä', 'toma', 'tosa', 'täsä', 'joka', 'aka', 'na', 'pa', 'va', 'vapa',
+      'nola', 'üka', 'kata', 'koma', 'nila', 'vija', 'kuta', 'sija', 'köka', 'ahka', 'lova', 'sata', 'tusa', 'milija'
+    ]);
+    const EN_PROPER_WORDS = new Set([
+      'america', 'american', 'americans', 'africa', 'african', 'africans', 'asia', 'asian', 'asians',
+      'europe', 'european', 'europeans', 'oceania', 'oceanian', 'oceanic', 'australia', 'australian', 'australians',
+      'finland', 'finnish', 'finn', 'finns', 'sweden', 'swedish', 'swede', 'swedes',
+      'norway', 'norwegian', 'norwegians', 'denmark', 'danish', 'dane', 'danes',
+      'iceland', 'icelandic', 'icelander', 'icelanders', 'greenland', 'greenlandic', 'greenlander', 'greenlanders', 'kalaallisut',
+      'estonia', 'estonian', 'estonians', 'latvia', 'latvian', 'latvians', 'russia', 'russian', 'russians',
+      'karelia', 'karelian', 'karelians', 'england', 'english', 'sápmi', 'sami', 'lokili',
+      'jesus', 'christ', 'bible', 'eurovision', 'scots',
+      'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday',
+      'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'
+    ]);
+    const EN_ACRONYMS = new Set(['usa', 'u.s.a.', 'us', 'u.s.', 'tv', 'mv']);
+
+    /**
+     * Normalize mid-sentence capitalization naturally for English, Finnish, and Lokili,
+     * while preserving proper nouns, English pronoun "I", and intentional user mid-sentence caps.
+     */
+    function formatTargetCase(text, lang, entry, sourceWasMidCap) {
+      if (!text) return text;
+
+      if (lang === 'en') {
+        const lowerText = text.toLowerCase();
+        // Split while preserving spaces, hyphens, and apostrophe-bearing words
+        let formatted = lowerText.replace(/[a-zäöüáéíóúå]+(?:['’][a-z]+)?/gi, (word) => {
+          const wLow = word.toLowerCase();
+          if (wLow === 'i' || wLow.startsWith("i'") || wLow.startsWith("i’")) {
+            return 'I' + word.slice(1);
+          }
+          if (EN_ACRONYMS.has(wLow)) return wLow.toUpperCase();
+          const stem = wLow.replace(/['’]s?$/, '');
+          if (EN_PROPER_WORDS.has(wLow) || EN_PROPER_WORDS.has(stem)) {
+            return word.charAt(0).toUpperCase() + word.slice(1);
+          }
+          return word;
+        });
+        // Multi-word English proper names (e.g. United States of America, North/South America)
+        formatted = formatted
+          .replace(/\bunited states\b/gi, 'United States')
+          .replace(/\bnorth (america\w*)\b/gi, (_, rest) => `North ${rest.charAt(0).toUpperCase() + rest.slice(1)}`)
+          .replace(/\bsouth (america\w*)\b/gi, (_, rest) => `South ${rest.charAt(0).toUpperCase() + rest.slice(1)}`);
+        if (sourceWasMidCap) {
+          formatted = formatted.charAt(0).toUpperCase() + formatted.slice(1);
+        }
+        return formatted;
+      }
+
+      if (lang === 'fi') {
+        // Finnish lexicon entries already use lowercase for common words & uppercase for proper nouns
+        if (sourceWasMidCap) {
+          return text.charAt(0).toUpperCase() + text.slice(1);
+        }
+        return text;
+      }
+
+      // Lokili: proper nouns already carry capitals in RAW_LEXICON; mirror explicit user mid-sentence caps
+      if (sourceWasMidCap) {
+        return text.charAt(0).toUpperCase() + text.slice(1);
+      }
+      return text;
+    }
 
     function getContextualSense(glossItems, idx, lang) {
       const g = glossItems[idx];
@@ -2183,10 +2248,21 @@
 
       // 5. palu: friend/ystävä when modified, possessed, plural, or inflected; otherwise please/ole hyvä
       if (lok === 'palu') {
-        if (g.morph?.plural || g.morph?.caseType || PERSON_OR_PRON_WORDS.has(prevLok) || prev?.entry?.ending === '-A' || prev?.entry?.ending === '-SA' || next?.entry?.ending === '-O') {
+        const afterGreetingComma = prev && prev.trail?.includes(',') && prev.entry?.cat === 'greetings';
+        if (afterGreetingComma || g.morph?.plural || g.morph?.caseType || PERSON_OR_PRON_WORDS.has(prevLok) || prev?.entry?.ending === '-A' || prev?.entry?.ending === '-SA' || next?.entry?.ending === '-O') {
           return lang === 'fi' ? 'ystävä' : 'friend';
         }
         return lang === 'fi' ? 'ole hyvä' : 'please';
+      }
+
+      // 5b. pulo: avoid awkward repetition when 'pulo' appears a second time in the same sentence
+      // (e.g. "Miä pulo lokilinu na pulo siäse." -> "Minä puhun lokilin kieltä ja keskustelen sillä." / "I speak the Lokili language and converse in it.")
+      if (lok === 'pulo') {
+        const earlierPulo = glossItems.slice(0, idx).some(x => x.entry?.lokiliLower === 'pulo');
+        if (earlierPulo) {
+          return lang === 'fi' ? 'keskustella' : 'to converse';
+        }
+        return lang === 'fi' ? 'puhua' : 'to speak';
       }
 
       // 6. kivi: island/saari in maritime/sea context, otherwise rock/kivi
@@ -2565,6 +2641,7 @@
       'viedä': { '1sg': 'vien', '2sg': 'viet', '3sg': 'vie', '1pl': 'viemme', '2pl': 'viette', '3pl': 'vievät', neg: 'vie' },
       'kuolla': { '1sg': 'kuolen', '2sg': 'kuolet', '3sg': 'kuolee', '1pl': 'kuolemme', '2pl': 'kuolette', '3pl': 'kuolevat', neg: 'kuole' },
       'kuulla': { '1sg': 'kuulen', '2sg': 'kuulet', '3sg': 'kuulee', '1pl': 'kuulemme', '2pl': 'kuulette', '3pl': 'kuulevat', neg: 'kuule' },
+      'keskustella': { '1sg': 'keskustelen', '2sg': 'keskustelet', '3sg': 'keskustelee', '1pl': 'keskustelemme', '2pl': 'keskustelette', '3pl': 'keskustelevat', neg: 'keskustele' },
       'lukea': { '1sg': 'luen', '2sg': 'luet', '3sg': 'lukee', '1pl': 'luemme', '2pl': 'luette', '3pl': 'lukevat', neg: 'lue' },
       'laskea': { '1sg': 'lasken', '2sg': 'lasket', '3sg': 'laskee', '1pl': 'laskemme', '2pl': 'laskette', '3pl': 'laskevat', neg: 'laske' },
       'oppia': { '1sg': 'opin', '2sg': 'opit', '3sg': 'oppii', '1pl': 'opimme', '2pl': 'opitte', '3pl': 'oppivat', neg: 'opi' },
@@ -2581,6 +2658,7 @@
       if (negated) {
         const aux = FI_NEG_AUX[person] || 'ei';
         if (FI_VERB_OVERRIDES[lower]?.neg) return `${aux} ${FI_VERB_OVERRIDES[lower].neg}`;
+        if (/(ll|nn|rr|st)[aä]$/.test(lower) && lower.length > 4) return `${aux} ${lower.slice(0, -2)}e`;
         if (/[aeiouyäö][aä]$/.test(lower)) return `${aux} ${fiWeakenKPT(lower.slice(0, -1))}`;
         if (/[aeiouyäö]t[aä]$/.test(lower) && lower.length > 4) return `${aux} ${lower.slice(0, -2) + fiHarmony(lower)}`;
         return `${aux} ${inf}`;
@@ -2590,6 +2668,12 @@
       const a = fiHarmony(lower);
       const endings = { '1sg': 'n', '2sg': 't', '3sg': '', '1pl': 'mme', '2pl': 'tte', '3pl': 'v' + a + 't' };
 
+      // Type 3 Finnish verbs: -lla/-llä, -nna/-nnä, -rra/-rrä, -sta/-stä
+      if (/(ll|nn|rr|st)[aä]$/.test(lower) && lower.length > 4) {
+        const stem = lower.slice(0, -2) + 'e';
+        if (person === '3sg') return stem + 'e';
+        return stem + endings[person];
+      }
       if (/[aeiouyäö][aä]$/.test(lower)) {
         const strong = lower.slice(0, -1);
         const weak = fiWeakenKPT(strong);
@@ -2792,6 +2876,8 @@
       'näemme': { lemma: 'nähdä', person: '1pl' }, 'näette': { lemma: 'nähdä', person: '2pl' }, 'näkevät': { lemma: 'nähdä', person: '3pl' },
       'puhun': { lemma: 'puhua', person: '1sg' }, 'puhut': { lemma: 'puhua', person: '2sg' }, 'puhuu': { lemma: 'puhua', person: '3sg' },
       'puhumme': { lemma: 'puhua', person: '1pl' }, 'puhutte': { lemma: 'puhua', person: '2pl' }, 'puhuvat': { lemma: 'puhua', person: '3pl' },
+      'keskustelen': { lemma: 'keskustella', person: '1sg' }, 'keskustelet': { lemma: 'keskustella', person: '2sg' }, 'keskustelee': { lemma: 'keskustella', person: '3sg' },
+      'keskustelemme': { lemma: 'keskustella', person: '1pl' }, 'keskustelette': { lemma: 'keskustella', person: '2pl' }, 'keskustelevat': { lemma: 'keskustella', person: '3pl' },
       'rakastan': { lemma: 'rakastaa', person: '1sg' }, 'rakastat': { lemma: 'rakastaa', person: '2sg' }, 'rakastaa': { lemma: 'rakastaa', person: '3sg' },
       'rakastamme': { lemma: 'rakastaa', person: '1pl' }, 'rakastavat': { lemma: 'rakastaa', person: '3pl' },
       'pidän': { lemma: 'pitää', person: '1sg' }, 'pidät': { lemma: 'pitää', person: '2sg' }, 'pitää': { lemma: 'pitää', person: '3sg' }, 'pidämme': { lemma: 'pitää', person: '1pl' },
@@ -2802,7 +2888,7 @@
       'tulen': { lemma: 'tulla', person: '1sg' }, 'tulet': { lemma: 'tulla', person: '2sg' }, 'tulee': { lemma: 'tulla', person: '3sg' }, 'tulemme': { lemma: 'tulla', person: '1pl' },
       'sanon': { lemma: 'sanoa', person: '1sg' }, 'sanot': { lemma: 'sanoa', person: '2sg' }, 'sanoo': { lemma: 'sanoa', person: '3sg' }, 'sanomme': { lemma: 'sanoa', person: '1pl' },
       'elän': { lemma: 'elää', person: '1sg' }, 'elät': { lemma: 'elää', person: '2sg' }, 'elää': { lemma: 'elää', person: '3sg' }, 'elämme': { lemma: 'elää', person: '1pl' },
-      'asun': { lemma: 'asua', person: '1sg' }, 'asut': { lemma: 'asua', person: '2sg' }, 'asuu': { lemma: 'asua', person: '3sg' }, 'asumme': { lemma: 'asua', person: '1pl' },
+      'asun': { lemma: 'asua', person: '1sg' }, 'asut': { lemma: 'asua', person: '2sg' }, 'asuu': { lemma: 'asua', person: '3sg' }, 'asumme': { lemma: 'asua', person: '1pl' }, 'asuvat': { lemma: 'asua', person: '3pl' },
       'luen': { lemma: 'lukea', person: '1sg' }, 'luet': { lemma: 'lukea', person: '2sg' }, 'lukee': { lemma: 'lukea', person: '3sg' }, 'luemme': { lemma: 'lukea', person: '1pl' },
       'lasken': { lemma: 'laskea (lukuja)', person: '1sg' }, 'lisään': { lemma: 'lisätä', person: '1sg' },
       'opin': { lemma: 'oppia', person: '1sg' }, 'opit': { lemma: 'oppia', person: '2sg' }, 'oppii': { lemma: 'oppia', person: '3sg' }, 'opimme': { lemma: 'oppia', person: '1pl' },
@@ -2906,6 +2992,10 @@
       }
 
       // 4. Check override noun forms (e.g. lokin -> lokki + gen, Suomessa -> Suomi + ine, suomalaisten -> soma + PL + GEN)
+      if (clean === 'sillä') {
+        const siaEntry = LEXICON.find(x => x.lokiliLower === 'siä');
+        if (siaEntry) return { token: rawToken, ...punc, entry: siaEntry, morph: { plural: false, caseType: 'ine' } };
+      }
       for (const [lemma, forms] of Object.entries(FI_NOUN_OVERRIDES)) {
         const mapCheck = [
           ['gen', false, 'gen'], ['part', false, 'part'], ['ine', false, 'ine'], ['langTra', false, 'ine'], ['all', false, 'part'],
@@ -3201,16 +3291,31 @@
         }
 
         // Greedy 2-word phrase match (e.g. "kiva nosu", "hyvää huomenta", "good morning")
+        // Context-guarded so "vano kiva" in "Tämä visu vano kiva ülä toma visu" is NOT misread as the greeting "You're welcome"
         if (!matched && idx + 1 < rawTokens.length) {
           const p2 = splitPunctuation(rawTokens[idx + 1]);
           const twoWords = `${pCur.core} ${p2.core}`.toLowerCase();
           let phraseHit = detected === 'lokili'
             ? LEXICON.find(x => x.lokiliLower === twoWords)
             : findByTranslation(twoWords, detected, true);
+
+          if (phraseHit && detected === 'lokili' && phraseHit.cat === 'greetings') {
+            const prevTok = idx > 0 ? splitPunctuation(rawTokens[idx - 1]) : null;
+            const atClauseStart = idx === 0 || (prevTok && /[.!?,;:]/.test(prevTok.trail || ''));
+            const atClauseEnd = idx + 2 >= rawTokens.length || /[.!?,;:]/.test(p2.trail || '');
+            if (phraseHit.lokiliLower === 'vano kiva') {
+              // Only treat "vano kiva" as the idiom "You're welcome / ole hyvä" when standing as its own clause
+              if (!atClauseStart || !atClauseEnd) phraseHit = null;
+            } else if (prevTok && prevTok.core.toLowerCase() === 'vano') {
+              // e.g. "Tämä vano kiva lunu" = "This is a good day", not the greeting "Good day"
+              phraseHit = null;
+            }
+          }
+
           if (phraseHit) {
             glossItems.push({
               token: `${rawTokens[idx]} ${rawTokens[idx + 1]}`,
-              lead: pCur.lead, trail: p2.trail,
+              lead: pCur.lead, core: `${pCur.core} ${p2.core}`, trail: p2.trail,
               entry: phraseHit, morph: { phrase: true, plural: false, caseType: null }
             });
             idx += 2;
@@ -3248,14 +3353,14 @@
       const relativeInsertBefore = new Set();
 
       if (detected === 'lokili') {
-        const isAdj = (g) => g?.entry && (g.entry.ending === '-A' || g.entry.ending === '-SA');
+        const isGradableAdj = (g) => g?.entry && (g.entry.ending === '-A' || g.entry.ending === '-SA') && !NON_GRADABLE_A.has(g.entry.lokiliLower);
         for (let i = 0; i < glossItems.length; i++) {
           if (skipIndices.has(i)) continue;
           const g = glossItems[i];
           const lok = g.entry?.lokiliLower;
 
           // 1. Emphatic superlative: ula + ADJ + ülä + joka
-          if (lok === 'ula' && i + 3 < glossItems.length && isAdj(glossItems[i + 1]) &&
+          if (lok === 'ula' && i + 3 < glossItems.length && isGradableAdj(glossItems[i + 1]) &&
               glossItems[i + 2].entry?.lokiliLower === 'ülä' && glossItems[i + 3].entry?.lokiliLower === 'joka') {
             glossItems[i + 1].compRole = 'emphSuperl';
             glossItems[i + 1].trail = glossItems[i + 3].trail || glossItems[i + 1].trail;
@@ -3266,7 +3371,7 @@
           }
 
           // 2. Contextual superlative: ula + ADJ + (Noun) + defining scope (e.g. ", mii teto" or "joka ...")
-          if (lok === 'ula' && i + 1 < glossItems.length && isAdj(glossItems[i + 1])) {
+          if (lok === 'ula' && i + 1 < glossItems.length && isGradableAdj(glossItems[i + 1])) {
             const hasDefiningScope = glossItems.slice(i + 2).some((item, offset) => {
               const absIdx = i + 2 + offset;
               const prevItem = glossItems[absIdx - 1];
@@ -3282,7 +3387,7 @@
           }
 
           // 3. Comparative with target: ADJ + ülä + TARGET
-          if (isAdj(g) && i + 2 < glossItems.length && glossItems[i + 1].entry?.lokiliLower === 'ülä' && glossItems[i + 2].entry) {
+          if (isGradableAdj(g) && i + 2 < glossItems.length && glossItems[i + 1].entry?.lokiliLower === 'ülä' && glossItems[i + 2].entry) {
             g.compRole = 'comp';
             g.hasTarget = true;
             skipIndices.add(i + 1);
@@ -3290,7 +3395,7 @@
           }
 
           // 4. Standalone comparative: ülä + ADJ
-          if (lok === 'ülä' && i + 1 < glossItems.length && isAdj(glossItems[i + 1])) {
+          if (lok === 'ülä' && i + 1 < glossItems.length && isGradableAdj(glossItems[i + 1])) {
             glossItems[i + 1].compRole = 'comp';
             skipIndices.add(i);
             continue;
@@ -3330,6 +3435,18 @@
 
         const lok = g.entry.lokiliLower;
 
+        // Detect whether the user intentionally capitalized this mid-sentence word in their input
+        const isAtSentenceStart = i === 0 || (prev && /[.!?]/.test(prev.trail || ''));
+        const srcCore = g.core || g.token || '';
+        const srcFirst = srcCore.charAt(0);
+        const srcStartsUpper = !!(srcFirst && srcFirst === srcFirst.toUpperCase() && srcFirst !== srcFirst.toLowerCase());
+        const srcCleanLow = srcCore.toLowerCase().replace(/['’]s?$/, '');
+        const obligatorySourceCap =
+          (detected === 'en' && (srcCleanLow === 'i' || EN_PROPER_WORDS.has(srcCleanLow) || EN_ACRONYMS.has(srcCleanLow))) ||
+          (detected === 'fi' && /^[A-ZÄÖÅ]/.test(g.entry.fi)) ||
+          (detected === 'lokili' && /^[A-ZÄÖÜ]/.test(g.entry.lokili));
+        const sourceWasMidCap = !isAtSentenceStart && !g.implicit && srcStartsUpper && !obligatorySourceCap;
+
         // Handle negation: övö + verb
         if (lok === 'övö' && next?.entry?.ending === '-O') {
           next.negated = true;
@@ -3357,6 +3474,7 @@
           lokWord = g.hasTarget ? `${g.entry.lokili} ülä` : `ülä ${g.entry.lokili}`;
         } else {
           lokWord = applyLokiliInflection(g.entry, g.morph, prevWasQuant);
+          lokWord = formatTargetCase(lokWord, 'lokili', g.entry, sourceWasMidCap);
         }
         lokiliParts.push(`${g.lead || ''}${lokWord}${g.trail || ''}`);
 
@@ -3384,6 +3502,7 @@
           }
           fiWord = inflectFinnishNoun(fiWord, effMorph, g.entry, prevLok);
         }
+        fiWord = formatTargetCase(fiWord, 'fi', g.entry, sourceWasMidCap);
         fiParts.push(`${g.lead || ''}${fiWord}${g.trail || ''}`);
 
         // 3. ENGLISH OUTPUT (Contextual sense + Comparison + Case/Verb Inflection)
@@ -3403,6 +3522,7 @@
             enWord = `the ${enWord}`;
           }
         }
+        enWord = formatTargetCase(enWord, 'en', g.entry, sourceWasMidCap);
         // Omit trailing comma right before English contact relative clause ("music we know")
         const enTrail = (relativeInsertBefore.has(i + 1) && g.trail === ',') ? '' : (g.trail || '');
         enParts.push(`${g.lead || ''}${enWord}${enTrail}`);
