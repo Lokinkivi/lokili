@@ -493,7 +493,7 @@
           <p id="modal-fi" class="text-sm font-medium leading-relaxed"></p>
         </div>
         <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/70 border border-slate-100 dark:border-slate-800">
-          <div class="text-xs font-bold uppercase tracking-wider text-teal-600 dark:text-teal-400 mb-1">🇬🇧 English</div>
+          <div class="text-xs font-bold uppercase tracking-wider text-lokili-red dark:text-red-400 mb-1">🇬🇧 English</div>
           <p id="modal-en" class="text-sm font-medium leading-relaxed"></p>
         </div>
       </div>
@@ -1905,9 +1905,16 @@
         const badge = getEndingBadgeInfo(item.ending);
         const catInfo = catMap[item.cat];
         const isFav = favorites.has(item.id);
-        // Adapt primary & secondary language presentation to active UI language
+        // Adapt primary & secondary language presentation to active UI language,
+        // keeping language badge colors consistent (FI = blue, EN = red)
         const primaryCode = uiLang === 'fi' ? 'FI' : 'EN';
         const secondaryCode = uiLang === 'fi' ? 'EN' : 'FI';
+        const primaryColorCls = uiLang === 'fi'
+          ? 'text-nordic-600 dark:text-nordic-400'
+          : 'text-lokili-red dark:text-red-400';
+        const secondaryColorCls = uiLang === 'fi'
+          ? 'text-lokili-red/80 dark:text-red-400/80'
+          : 'text-nordic-600/80 dark:text-nordic-400/80';
         const primaryMeaning = uiLang === 'fi' ? item.fi : item.en;
         const secondaryMeaning = uiLang === 'fi' ? item.en : item.fi;
         return `
@@ -1924,11 +1931,11 @@
               </div>
               <!-- Primary active UI language meaning -->
               <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 mt-1.5 line-clamp-2">
-                <span class="text-[10px] font-bold uppercase text-nordic-500 dark:text-nordic-400 mr-1">${primaryCode}</span>${escapeHtml(primaryMeaning)}
+                <span class="text-[10px] font-bold uppercase ${primaryColorCls} mr-1">${primaryCode}</span>${escapeHtml(primaryMeaning)}
               </p>
               <!-- Secondary language meaning -->
               <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">
-                <span class="text-[10px] font-bold uppercase text-slate-400 mr-1">${secondaryCode}</span>${escapeHtml(secondaryMeaning)}
+                <span class="text-[10px] font-bold uppercase ${secondaryColorCls} mr-1">${secondaryCode}</span>${escapeHtml(secondaryMeaning)}
               </p>
             </div>
             <div class="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800/80 text-[11px]">
