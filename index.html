@@ -489,11 +489,17 @@
       <!-- Meanings -->
       <div id="modal-meanings-container" class="flex flex-col gap-3">
         <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/70 border border-slate-100 dark:border-slate-800">
-          <div class="text-xs font-bold uppercase tracking-wider text-nordic-600 dark:text-nordic-400 mb-1">🇫🇮 Suomi</div>
+          <div class="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-nordic-600 dark:text-nordic-400 mb-1">
+            <span class="px-1.5 py-0.5 rounded bg-nordic-100 dark:bg-nordic-900/60 text-[10px] font-extrabold">FI</span>
+            <span>Suomi</span>
+          </div>
           <p id="modal-fi" class="text-sm font-medium leading-relaxed"></p>
         </div>
         <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/70 border border-slate-100 dark:border-slate-800">
-          <div class="text-xs font-bold uppercase tracking-wider text-lokili-red dark:text-red-400 mb-1">🇬🇧 English</div>
+          <div class="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-lokili-red dark:text-red-400 mb-1">
+            <span class="px-1.5 py-0.5 rounded bg-red-100 dark:bg-red-950/60 text-[10px] font-extrabold">EN</span>
+            <span>English</span>
+          </div>
           <p id="modal-en" class="text-sm font-medium leading-relaxed"></p>
         </div>
       </div>
@@ -2873,7 +2879,10 @@
       const fiCard = `
         <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
           <div class="flex items-center justify-between">
-            <span class="text-xs font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-300">🇫🇮 Suomi</span>
+            <span class="inline-flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-nordic-600 dark:text-nordic-400">
+              <span class="px-1.5 py-0.5 rounded bg-nordic-100 dark:bg-nordic-900/60 text-[10px]">FI</span>
+              <span>Suomi</span>
+            </span>
             <button onclick="copyTextToClipboard('${escapeJs(fiLine)}')" class="p-1.5 rounded-lg bg-white dark:bg-slate-900 text-xs shadow-sm">📋</button>
           </div>
           <p class="text-sm font-semibold text-slate-800 dark:text-slate-100 leading-relaxed">${escapeHtml(fiLine)}</p>
@@ -2883,7 +2892,10 @@
       const enCard = `
         <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
           <div class="flex items-center justify-between">
-            <span class="text-xs font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-300">🇬🇧 English</span>
+            <span class="inline-flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-lokili-red dark:text-red-400">
+              <span class="px-1.5 py-0.5 rounded bg-red-100 dark:bg-red-950/60 text-[10px]">EN</span>
+              <span>English</span>
+            </span>
             <button onclick="copyTextToClipboard('${escapeJs(enLine)}')" class="p-1.5 rounded-lg bg-white dark:bg-slate-900 text-xs shadow-sm">📋</button>
           </div>
           <p class="text-sm font-semibold text-slate-800 dark:text-slate-100 leading-relaxed">${escapeHtml(enLine)}</p>
