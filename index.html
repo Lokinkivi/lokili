@@ -2143,68 +2143,69 @@
       'europe', 'european', 'europeans', 'oceania', 'oceanian', 'oceanic', 'australia', 'australian', 'australians',
       'finland', 'finnish', 'finn', 'finns', 'sweden', 'swedish', 'swede', 'swedes',
       'norway', 'norwegian', 'norwegians', 'denmark', 'danish', 'dane', 'danes',
-      'iceland', 'icelandic', 'icelander', 'icelanders', 'greenland', 'greenlandic', 'greenlander', 'greenlanders', 'kalaallisut',
-      'estonia', 'estonian', 'estonians', 'latvia', 'latvian', 'latvians', 'russia', 'russian', 'russians',
-      'karelia', 'karelian', 'karelians', 'england', 'english', 'sápmi', 'sami', 'lokili',
-      'jesus', 'christ', 'bible', 'eurovision', 'scots',
+      'iceland', 'icelandic', 'icelander', 'icelanders', 'greenland', 'greenlandic', 'greenlander', 'greenlanders',
+      'england', 'english', 'estonia', 'estonian', 'estonians', 'latvia', 'latvian', 'latvians',
+      'russia', 'russian', 'russians', 'karelia', 'karelian', 'karelians', 'sápmi', 'sapmi', 'sami',
+      'lokili', 'kalaallisut', 'jesus', 'christ', 'bible', 'eurovision',
       'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday',
       'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'
     ]);
-    const EN_ACRONYMS = new Set(['usa', 'u.s.a.', 'us', 'u.s.', 'tv', 'mv']);
+    const EN_ACRONYMS = new Set(['usa', 'u.s.a.', 'u.s.', 'us', 'tv', 'mv', 'ak-v-v', 'v-l-k']);
 
     /**
-     * Normalize mid-sentence capitalization naturally for English, Finnish, and Lokili,
-     * while preserving proper nouns, English pronoun "I", and intentional user mid-sentence caps.
+     * Format capitalization of a translated word/phrase in mid-sentence position:
+     * - Keeps common words lowercase unless intentionally capitalized mid-sentence by the user
+     * - Preserves proper nouns, acronyms, and English "I" / languages / nationalities / days / months
      */
-    function formatTargetCase(text, lang, entry, sourceWasMidCap) {
-      if (!text) return text;
+    function formatTargetCase(word, targetLang, entry, sourceWasMidCap = false) {
+      if (!word) return word;
+      const isEntryProper = !!(entry && /^[A-ZÄÖÜ]/.test(entry.lokili));
+      const tokens = word.split(' ');
+      const formatted = tokens.map((tok, tIdx) => {
+        if (!tok) return tok;
+        const cleanLow = tok.toLowerCase().replace(/^['"“”‘’]+|['"“”‘’.,!?;:]+$/g, '');
+        const baseNoPoss = cleanLow.replace(/['’]s?$/, '');
 
-      if (lang === 'en') {
-        const lowerText = text.toLowerCase();
-        // Split while preserving spaces, hyphens, and apostrophe-bearing words
-        let formatted = lowerText.replace(/[a-zäöüáéíóúå]+(?:['’][a-z]+)?/gi, (word) => {
-          const wLow = word.toLowerCase();
-          if (wLow === 'i' || wLow.startsWith("i'") || wLow.startsWith("i’")) {
-            return 'I' + word.slice(1);
-          }
-          if (EN_ACRONYMS.has(wLow)) return wLow.toUpperCase();
-          const stem = wLow.replace(/['’]s?$/, '');
-          if (EN_PROPER_WORDS.has(wLow) || EN_PROPER_WORDS.has(stem)) {
-            return word.charAt(0).toUpperCase() + word.slice(1);
-          }
-          return word;
-        });
-        // Multi-word English proper names (e.g. United States of America, North/South America)
-        formatted = formatted
-          .replace(/\bunited states\b/gi, 'United States')
-          .replace(/\bnorth (america\w*)\b/gi, (_, rest) => `North ${rest.charAt(0).toUpperCase() + rest.slice(1)}`)
-          .replace(/\bsouth (america\w*)\b/gi, (_, rest) => `South ${rest.charAt(0).toUpperCase() + rest.slice(1)}`);
-        if (sourceWasMidCap) {
-          formatted = formatted.charAt(0).toUpperCase() + formatted.slice(1);
+        if (EN_ACRONYMS.has(cleanLow)) {
+          return tok.toUpperCase();
         }
-        return formatted;
-      }
-
-      if (lang === 'fi') {
-        // Finnish lexicon entries already use lowercase for common words & uppercase for proper nouns
-        if (sourceWasMidCap) {
-          return text.charAt(0).toUpperCase() + text.slice(1);
+        if (targetLang === 'lokili') {
+          if (isEntryProper && tIdx === 0) {
+            return tok.charAt(0).toUpperCase() + tok.slice(1);
+          }
+          return sourceWasMidCap && tIdx === 0
+            ? tok.charAt(0).toUpperCase() + tok.slice(1).toLowerCase()
+            : tok.toLowerCase();
         }
-        return text;
-      }
-
-      // Lokili: proper nouns already carry capitals in RAW_LEXICON; mirror explicit user mid-sentence caps
-      if (sourceWasMidCap) {
-        return text.charAt(0).toUpperCase() + text.slice(1);
-      }
-      return text;
+        if (targetLang === 'fi') {
+          const isFiProper = !!(entry && /^[A-ZÄÖÅ]/.test(entry.fi.split(',')[0].trim()));
+          if (isFiProper && tIdx === 0) {
+            return tok.charAt(0).toUpperCase() + tok.slice(1);
+          }
+          return sourceWasMidCap && tIdx === 0
+            ? tok.charAt(0).toUpperCase() + tok.slice(1).toLowerCase()
+            : tok.toLowerCase();
+        }
+        if (targetLang === 'en') {
+          const enSmallWords = new Set(['of', 'the', 'in', 'to', 'for', 'from', 'about', 'on', 'at', 'as', 'and', 'or']);
+          if (cleanLow === 'i' || EN_PROPER_WORDS.has(baseNoPoss) || (isEntryProper && !enSmallWords.has(cleanLow))) {
+            return tok.charAt(0).toUpperCase() + tok.slice(1).toLowerCase();
+          }
+          return sourceWasMidCap && tIdx === 0
+            ? tok.charAt(0).toUpperCase() + tok.slice(1).toLowerCase()
+            : tok.toLowerCase();
+        }
+        return tok;
+      });
+      return formatted.join(' ');
     }
 
-    function getContextualSense(glossItems, idx, lang) {
+    function getContextualSense(glossItems, idx, lang, detected = 'lokili') {
       const g = glossItems[idx];
       const entry = g.entry;
       if (!entry) return '';
       const lok = entry.lokiliLower;
+      const srcLow = (g.core || g.token || '').toLowerCase();
       const prev = idx > 0 ? glossItems[idx - 1] : null;
       const prev2 = idx > 1 ? glossItems[idx - 2] : null;
       const next = idx < glossItems.length - 1 ? glossItems[idx + 1] : null;
@@ -2213,8 +2214,25 @@
       const nextLok = next?.entry?.lokiliLower || '';
       const sentenceHas = (set) => glossItems.some(x => x.entry && set.has(x.entry.lokiliLower));
 
+      // 0. Pronouns sine / sinu with inanimate reference ("sen" -> its, "sitä/sen" -> it)
+      if (lok === 'sine' && g.morph?.inanimate) {
+        return lang === 'fi' ? 'sen' : 'its';
+      }
+      if (lok === 'sinu') {
+        const INANIMATE_OBJ_VERBS = new Set(['lamato', 'lohko', 'sumo', 'juvo', 'vuso', 'tuho', 'teko', 'teto', 'tano', 'luko', 'liso', 'tisto', 'kaso', 'pano']);
+        if (g.morph?.inanimate || (detected === 'lokili' && INANIMATE_OBJ_VERBS.has(prevLok))) {
+          return lang === 'fi' ? 'sitä' : 'it';
+        }
+      }
+
       // 1. kili: cry/kirkuna after bird/animal (e.g. Loke kili), otherwise language/kieli
       if (lok === 'kili') {
+        if ((detected === 'fi' && /^(kirk|huut|ään|kilj|rääk)/.test(srcLow)) || (detected === 'en' && /^(cry|shout|scream|shriek|squawk|screech|voice|sound)/.test(srcLow))) {
+          return lang === 'fi' ? 'kirkuna' : 'cry';
+        }
+        if ((detected === 'fi' && /^kiel/.test(srcLow)) || (detected === 'en' && /^lang/.test(srcLow))) {
+          return lang === 'fi' ? 'kieli' : 'language';
+        }
         if (ANIMAL_WORDS.has(prevLok) || (prev?.entry?.cat === 'nature' && prev?.morph?.caseType === 'gen')) {
           return lang === 'fi' ? 'kirkuna' : 'cry';
         }
@@ -2223,6 +2241,12 @@
 
       // 2. pesi: home/koti with people/pronouns/nationalities, nest/pesä with birds/animals
       if (lok === 'pesi') {
+        if ((detected === 'fi' && /^pes/.test(srcLow)) || (detected === 'en' && /^nest/.test(srcLow))) {
+          return lang === 'fi' ? 'pesä' : 'nest';
+        }
+        if ((detected === 'fi' && /^(kot|kod)/.test(srcLow)) || (detected === 'en' && /^home/.test(srcLow))) {
+          return lang === 'fi' ? 'koti' : 'home';
+        }
         if (ANIMAL_WORDS.has(prevLok)) {
           return lang === 'fi' ? 'pesä' : 'nest';
         }
@@ -2232,8 +2256,14 @@
         return lang === 'fi' ? 'koti' : 'home';
       }
 
-      // 3. visu: song/laulu with demonstratives/numbers/singing, music/musiikki in general/uncountable context
+      // 3. visu: song/laulu with demonstratives/numbers/singing or explicit source, music/musiikki in general context
       if (lok === 'visu') {
+        if ((detected === 'fi' && /^(laul|viis)/.test(srcLow)) || (detected === 'en' && /^(song|tune|track)/.test(srcLow))) {
+          return lang === 'fi' ? 'laulu' : 'song';
+        }
+        if ((detected === 'fi' && /^musiik/.test(srcLow)) || (detected === 'en' && /^music/.test(srcLow))) {
+          return lang === 'fi' ? 'musiikki' : 'music';
+        }
         if (DETERMINER_WORDS.has(prevLok) || DETERMINER_WORDS.has(prev2Lok) || g.morph?.plural) {
           return lang === 'fi' ? 'laulu' : 'song';
         }
@@ -2242,15 +2272,21 @@
 
       // 4. lahu & tevu: greeting at utterance start / standalone, peace/health inside a clause
       if (lok === 'lahu') {
+        if ((detected === 'fi' && /^(rauh|lep|tyyn)/.test(srcLow)) || (detected === 'en' && /^(peace|rest|tranquil)/.test(srcLow))) {
+          return lang === 'fi' ? 'rauha' : 'peace';
+        }
         const isStandaloneGreeting = glossItems.length <= 2 || (idx === 0 && /[,!]/.test(g.trail || '')) || (idx === 0 && nextLok === 'palu');
-        if (!isStandaloneGreeting && (g.morph?.caseType || g.morph?.plural || prev?.entry?.ending === '-A' || prev?.entry?.ending === '-O' || next?.entry?.ending === '-O')) {
+        if (!isStandaloneGreeting && (g.morph?.caseType || g.morph?.plural || g.morph?.isDirectObj || prev?.entry?.ending === '-A' || prev?.entry?.ending === '-O' || next?.entry?.ending === '-O')) {
           return lang === 'fi' ? 'rauha' : 'peace';
         }
         return lang === 'fi' ? 'hei' : 'hello';
       }
       if (lok === 'tevu') {
+        if ((detected === 'fi' && /^(tervey|ehey|ehjy)/.test(srcLow)) || (detected === 'en' && /^(health|whole)/.test(srcLow))) {
+          return lang === 'fi' ? 'terveys' : 'health';
+        }
         const isStandaloneGreeting = glossItems.length <= 2 || (idx === 0 && /[,!]/.test(g.trail || ''));
-        if (!isStandaloneGreeting && (g.morph?.caseType || g.morph?.plural || prev?.entry?.ending === '-A' || prev?.entry?.ending === '-O' || next?.entry?.ending === '-O')) {
+        if (!isStandaloneGreeting && (g.morph?.caseType || g.morph?.plural || g.morph?.isDirectObj || prev?.entry?.ending === '-A' || prev?.entry?.ending === '-O' || next?.entry?.ending === '-O')) {
           return lang === 'fi' ? 'terveys' : 'health';
         }
         return lang === 'fi' ? 'hei' : 'hello';
@@ -2258,8 +2294,11 @@
 
       // 5. palu: friend/ystävä when modified, possessed, plural, or inflected; otherwise please/ole hyvä
       if (lok === 'palu') {
+        if ((detected === 'fi' && /^ystäv/.test(srcLow)) || (detected === 'en' && /^friend/.test(srcLow))) {
+          return lang === 'fi' ? 'ystävä' : 'friend';
+        }
         const afterGreetingComma = prev && prev.trail?.includes(',') && prev.entry?.cat === 'greetings';
-        if (afterGreetingComma || g.morph?.plural || g.morph?.caseType || PERSON_OR_PRON_WORDS.has(prevLok) || prev?.entry?.ending === '-A' || prev?.entry?.ending === '-SA' || next?.entry?.ending === '-O') {
+        if (afterGreetingComma || g.morph?.plural || g.morph?.caseType || g.morph?.isDirectObj || PERSON_OR_PRON_WORDS.has(prevLok) || prev?.entry?.ending === '-A' || prev?.entry?.ending === '-SA' || next?.entry?.ending === '-O') {
           return lang === 'fi' ? 'ystävä' : 'friend';
         }
         return lang === 'fi' ? 'ole hyvä' : 'please';
@@ -2277,6 +2316,12 @@
 
       // 6. kivi: island/saari in maritime/sea context, otherwise rock/kivi
       if (lok === 'kivi') {
+        if ((detected === 'fi' && /^(saar|luod|luot)/.test(srcLow)) || (detected === 'en' && /^(island|islet)/.test(srcLow))) {
+          return lang === 'fi' ? 'saari' : 'island';
+        }
+        if ((detected === 'fi' && /^(kiv|kalli)/.test(srcLow)) || (detected === 'en' && /^(rock|stone)/.test(srcLow))) {
+          return lang === 'fi' ? 'kivi' : 'rock';
+        }
         if (sentenceHas(WATER_SEA_WORDS)) {
           return lang === 'fi' ? 'saari' : 'island';
         }
@@ -2285,6 +2330,12 @@
 
       // 7. kali: Karelian language in speech context, fish in food/nature/fishing context
       if (lok === 'kali') {
+        if ((detected === 'fi' && /^karjal/.test(srcLow)) || (detected === 'en' && /^karelian/.test(srcLow))) {
+          return lang === 'fi' ? 'karjalan kieli' : 'Karelian language';
+        }
+        if ((detected === 'fi' && /^kal/.test(srcLow)) || (detected === 'en' && /^fish/.test(srcLow))) {
+          return lang === 'fi' ? 'kala' : 'fish';
+        }
         if (sentenceHas(SPEECH_LANG_VERBS) || prevLok === 'kili' || nextLok === 'kili') {
           return lang === 'fi' ? 'karjalan kieli' : 'Karelian language';
         }
@@ -2293,6 +2344,9 @@
 
       // 8. siju: week/viikko with time words or -se, otherwise seven/seitsemän
       if (lok === 'siju') {
+        if ((detected === 'fi' && /^viik/.test(srcLow)) || (detected === 'en' && /^week/.test(srcLow))) {
+          return lang === 'fi' ? 'viikko' : 'week';
+        }
         if (TIME_CONTEXT_WORDS.has(prevLok) || g.morph?.caseType === 'ine') {
           return lang === 'fi' ? 'viikko' : 'week';
         }
@@ -2320,7 +2374,7 @@
         return lang === 'fi' ? 'hyvä' : 'good';
       }
 
-      const preferEnNoun = lang === 'en' && !!(g.morph && (g.morph.plural || g.morph.caseType));
+      const preferEnNoun = lang === 'en' && !!(g.morph && (g.morph.plural || g.morph.caseType || g.morph.isDirectObj));
       return getPrimarySense(entry, lang, preferEnNoun);
     }
 
@@ -2339,6 +2393,9 @@
       if (morph.phrase) tags.push(uiLang === 'fi' ? 'FRAASI' : 'PHRASE');
       if (morph.plural) tags.push(uiLang === 'fi' ? 'MONIKKO' : 'PLURAL');
       const isIrregPron = entry?.cat === 'pronouns';
+      if (morph.isDirectObj && !isIrregPron && !morph.caseType) {
+        tags.push(uiLang === 'fi' ? 'objekti' : 'object');
+      }
       if (morph.caseType === 'gen') {
         if (isIrregPron) {
           tags.push(uiLang === 'fi' ? 'genetiivi' : 'genitive');
@@ -3199,7 +3256,7 @@
     /**
      * Analyze an inflected Finnish word (cases, plurals, pronouns, verbs, comparatives, superlatives)
      */
-    function analyzeFinnishToken(rawToken) {
+    function analyzeFinnishToken(rawToken, hasVerbInClause = false, afterNegAux = false) {
       const punc = splitPunctuation(rawToken);
       const clean = punc.core.toLowerCase();
       if (!clean) return null;
@@ -3270,10 +3327,15 @@
         }
       }
 
-      // Reverse consonant gradation & Finnish stem alternations (kk/k, pp/p, tt/t, p/v, t/d, nk/ng, nt/nn, mp/mm, lt/ll, rt/rr, e/i, de/si, ude/us, kse/s...)
+      // Reverse consonant gradation & Finnish stem alternations (kk/k, pp/p, tt/t, p/v, t/d, nk/ng, nt/nn, mp/mm, lt/ll, rt/rr, e/i, de/si, ude/us, kse/s, -s & -e stems...)
       const FI_STEM_EXCEPTIONS = {
         'ruoa': 'ruoka', 'aja': 'aika', 'poja': 'poika', 'luvu': 'luku',
-        'sydäme': 'sydän', 'miehe': 'mies', 'lahde': 'lahti', 'käde': 'käsi'
+        'sydäme': 'sydän', 'miehe': 'mies', 'lahde': 'lahti', 'käde': 'käsi',
+        'rikkaa': 'rikas', 'rakkaa': 'rakas', 'puhtaa': 'puhdas', 'hitaa': 'hidas',
+        'arvokkaa': 'arvokas', 'sairaa': 'sairas', 'kaunii': 'kaunis', 'kallii': 'kallis',
+        'satee': 'sade', 'taitee': 'taide', 'tuntee': 'tunne', 'liikkee': 'liike',
+        'lannoittee': 'lannoite', 'tiedottee': 'tiedote', 'päätee': 'pääte', 'päättee': 'pääte',
+        'katee': 'kate', 'kattee': 'kate', 'väittee': 'väite', 'peittee': 'peite', 'kastee': 'kaste'
       };
 
       function expandKPT(stem) {
@@ -3286,7 +3348,10 @@
           [/ll([aeiouyäö])$/, 'lt$1'], [/rr([aeiouyäö])$/, 'rt$1'],
           [/hde$/, 'hti'], [/de$/, 'si'], [/te$/, 'si'],
           [/ude$/, 'us'], [/yde$/, 'ys'], [/kse$/, 's'],
-          [/he$/, 's'], [/me$/, 'n'], [/e$/, 'i']
+          [/he$/, 's'], [/me$/, 'n'], [/e$/, 'i'],
+          // -e nouns (kirje -> kirjee, toive -> toivee, ohje -> ohjee) & -s nominals (kaunis -> kaunii, sairas -> sairaa)
+          [/ttee$/, 'te'], [/kkee$/, 'ke'], [/ppee$/, 'pe'], [/ntee$/, 'nne'], [/ee$/, 'e'],
+          [/ii$/, 'is'], [/aa$/, 'as'], [/ää$/, 'äs'], [/oo$/, 'os']
         ];
         for (const [re, rep] of rev) {
           if (re.test(stem)) set.add(stem.replace(re, rep));
@@ -3294,6 +3359,7 @@
         // Two-step expansion (e.g. "kive" -> "kivi", or "leiv" + "ä" -> "leivä" -> "leipä")
         const snapshot = [...set];
         for (const s of snapshot) {
+          if (FI_STEM_EXCEPTIONS[s]) set.add(FI_STEM_EXCEPTIONS[s]);
           if (s.endsWith('e') && s.length > 2) set.add(s.slice(0, -1) + 'i');
           if (/v[aeiouyäö]$/.test(s)) set.add(s.replace(/v([aeiouyäö])$/, 'p$1'));
           if (/d[aeiouyäö]$/.test(s)) set.add(s.replace(/d([aeiouyäö])$/, 't$1'));
@@ -3301,21 +3367,47 @@
         return [...set];
       }
 
-      // 5b. General Finnish finite verb reverse-stemming (-n, -t, -mme, -tte, -vat/-vät)
+      // 5a. Connegative Finnish verb form right after negative auxiliary (e.g. "en kirjoita", "emme osta", "ei puhu")
+      if (afterNegAux && clean.length >= 2) {
+        const a = fiHarmony(clean);
+        const negCands = [];
+        for (const s of expandKPT(clean)) {
+          negCands.push(s + a, s + 'd' + a);
+          if (/[aeiouyäö][aä]$/.test(s)) negCands.push(s.slice(0, -1) + 't' + a);
+          if (s.endsWith('e')) {
+            const baseE = s.slice(0, -1);
+            negCands.push(baseE + 'l' + a, baseE + 'll' + a, baseE + 'st' + a);
+          }
+        }
+        for (const cand of negCands) {
+          const match = findByTranslation(cand, 'fi', true);
+          if (match && match.ending === '-O') {
+            return { token: rawToken, ...punc, entry: match, morph: { plural: false, caseType: null }, impliedPerson: null };
+          }
+        }
+      }
+
+      // 5b. General Finnish finite verb reverse-stemming (-n, -t, -mme, -tte, -vat/-vät, 3sg doubled vowel)
+      // When the clause already has a finite verb, skip -n/-t verb guessing so noun accusatives/plurals (e.g. "viestin") match as nouns
       const fiVerbEndings = [
-        { re: /mme$/, person: '1pl' },
-        { re: /tte$/, person: '2pl' },
-        { re: /v[aä]t$/, person: '3pl' },
-        { re: /n$/, person: '1sg' },
-        { re: /t$/, person: '2sg' }
+        { re: /mme$/, person: '1pl', allowAfterVerb: true },
+        { re: /tte$/, person: '2pl', allowAfterVerb: true },
+        { re: /v[aä]t$/, person: '3pl', allowAfterVerb: true },
+        { re: /n$/, person: '1sg', allowAfterVerb: false },
+        { re: /t$/, person: '2sg', allowAfterVerb: false }
       ];
       for (const ve of fiVerbEndings) {
+        if (!ve.allowAfterVerb && hasVerbInClause) continue;
         if (ve.re.test(clean) && clean.length > 3) {
           const stem = clean.replace(ve.re, '');
           const a = fiHarmony(stem);
           const infCands = [];
           for (const s of expandKPT(stem)) {
-            infCands.push(s + a, s + 'd' + a, s + 't' + a);
+            infCands.push(s + a, s + 'd' + a);
+            // Type 4 verbs (-ta/-tä like pelata -> pelaan, kuvata -> kuvaan, siivota -> siivoan) always end in two vowels before -n/-t
+            if (/[aeiouyäö][aä]$/.test(s)) {
+              infCands.push(s.slice(0, -1) + 't' + a);
+            }
             if (s.endsWith('e')) {
               const baseE = s.slice(0, -1);
               infCands.push(baseE + 'l' + a, baseE + 'll' + a, baseE + 'st' + a);
@@ -3325,6 +3417,28 @@
             const match = findByTranslation(cand, 'fi', true);
             if (match && match.ending === '-O') {
               return { token: rawToken, ...punc, entry: match, morph: { plural: false, caseType: null }, impliedPerson: ve.person };
+            }
+          }
+        }
+      }
+
+      // 5c. General Finnish 3sg doubled-vowel verb stems (e.g. toivoo -> toivoa, kysyy -> kysyä, tuntee -> tuntea, arvostelee -> arvostella)
+      if (!hasVerbInClause && clean.length > 3) {
+        const v3m = clean.match(/^(.+?)([aeiouyäö])\2$/);
+        if (v3m) {
+          const stem3 = v3m[1] + v3m[2];
+          const a3 = fiHarmony(stem3);
+          const cands3 = [stem3 + a3];
+          if (v3m[2] === 'e') {
+            cands3.push(v3m[1] + 'll' + a3, v3m[1] + 'l' + a3, v3m[1] + 'st' + a3);
+          }
+          if (v3m[2] === 'a' || v3m[2] === 'ä') {
+            cands3.push(v3m[1] + 't' + a3);
+          }
+          for (const cand of cands3) {
+            const match = findByTranslation(cand, 'fi', true);
+            if (match && match.ending === '-O') {
+              return { token: rawToken, ...punc, entry: match, morph: { plural: false, caseType: null }, impliedPerson: '3sg' };
             }
           }
         }
@@ -3858,47 +3972,259 @@
           if (detected === 'lokili') {
             analyzed = analyzeLokiliToken(rawTokens[idx]);
           } else if (detected === 'fi') {
-            analyzed = analyzeFinnishToken(rawTokens[idx]);
+            // Check whether the current Finnish clause already contains a finite verb or immediately follows a negative auxiliary
+            let hasVerbInCurClause = false;
+            for (let k = glossItems.length - 1; k >= 0; k--) {
+              const pg = glossItems[k];
+              if (/[.!?,;:]/.test(pg.trail || '') || ['na', 'aka', 'va', 'pa', 'vapa'].includes(pg.entry?.lokiliLower)) break;
+              if (pg.entry?.ending === '-O' && !pg.morph?.phrase) {
+                hasVerbInCurClause = true;
+                break;
+              }
+            }
+            const prevGForNeg = glossItems[glossItems.length - 1];
+            const afterNegAux = !!(prevGForNeg?.isNegAux && !/[.!?,;:]/.test(prevGForNeg.trail || ''));
+            analyzed = analyzeFinnishToken(rawTokens[idx], hasVerbInCurClause, afterNegAux);
           } else {
             analyzed = analyzeEnglishToken(rawTokens[idx]);
           }
+
           if (analyzed) {
-            // Disambiguate English "like" as verb "melo" after a subject pronoun or negation (e.g. "I like you", "I do not like bread")
+            // English context refinements:
+            // 1. "like" after a subject pronoun/noun is the verb "to like" (melo), not "samase"
             if (detected === 'en' && (analyzed.core || '').toLowerCase() === 'like') {
               const prevG = glossItems[glossItems.length - 1];
-              if (prevG?.entry && (prevG.entry.cat === 'pronouns' || prevG.entry.lokiliLower === 'övö')) {
+              const afterSubj = !!(prevG?.entry && !/[.!?,;:]/.test(prevG.trail || '') &&
+                (prevG.entry.cat === 'pronouns' || ['-I', '-U', '-OJA', 'ARCHAIC'].includes(prevG.entry.ending) || prevG.entry.lokiliLower === 'övö'));
+              if (afterSubj) {
                 const meloEntry = LEXICON.find(x => x.lokiliLower === 'melo');
-                if (meloEntry) analyzed.entry = meloEntry;
+                if (meloEntry) {
+                  analyzed.entry = meloEntry;
+                  analyzed.morph = { plural: false, caseType: null };
+                }
               }
             }
-            // For English post-verbal object pronouns ("I love you", "I like it"), use Lokili target pronoun (tinu / sinu)
+
+            // 2. English "you" / "it" right after a verb functions as object pronoun (tinu / sinu)
             if (detected === 'en' && analyzed.entry?.cat === 'pronouns') {
               const prevG = glossItems[glossItems.length - 1];
               const coreLow = (analyzed.core || '').toLowerCase();
-              if (coreLow === 'it') analyzed.morph = { ...(analyzed.morph || {}), inanimate: true };
-              if (prevG?.entry?.ending === '-O' && (coreLow === 'you' || coreLow === 'it')) {
+              const afterVerb = !!(prevG?.entry?.ending === '-O' && !/[.!?,;:]/.test(prevG.trail || ''));
+              if (afterVerb && (coreLow === 'you' || coreLow === 'it')) {
                 const para = LOKILI_PRONOUN_PARADIGM[analyzed.entry.lokiliLower];
                 if (para) {
-                  analyzed.entry = LEXICON.find(x => x.lokiliLower === para.part) || analyzed.entry;
-                  analyzed.morph = { ...(analyzed.morph || {}), caseType: 'part', inanimate: coreLow === 'it' };
+                  const objEntry = LEXICON.find(x => x.lokiliLower === para.part);
+                  if (objEntry) {
+                    analyzed.entry = objEntry;
+                    analyzed.morph = {
+                      plural: false,
+                      caseType: 'part',
+                      inanimate: coreLow === 'it'
+                    };
+                  }
                 }
+              } else if (coreLow === 'it') {
+                analyzed.morph = { ...(analyzed.morph || { plural: false, caseType: null }), inanimate: true };
               }
             }
-            // For Finnish pro-drop verbs (e.g. "tiedämme", "en tiedä" without explicit subject), inject implicit Lokili subject pronoun
+
+            // 3. Finnish pro-drop: insert implied Lokili subject pronoun for 1st/2nd person finite verbs without an explicit subject
             if (detected === 'fi' && analyzed.impliedPerson && ['1sg', '2sg', '1pl', '2pl'].includes(analyzed.impliedPerson)) {
-              const prevG = glossItems[glossItems.length - 1];
-              const prevIsPronoun = prevG?.entry?.cat === 'pronouns';
-              if (!prevIsPronoun) {
-                const pronMap = { '1sg': 'miä', '2sg': 'tiä', '1pl': 'mii', '2pl': 'tii' };
-                const pronEntry = LEXICON.find(x => x.lokiliLower === pronMap[analyzed.impliedPerson]);
+              const IMPL_PRON = { '1sg': 'miä', '2sg': 'tiä', '1pl': 'mii', '2pl': 'tii' };
+              let hasSubjInClause = false;
+              for (let k = glossItems.length - 1; k >= 0; k--) {
+                const pg = glossItems[k];
+                if (/[.!?,;:]/.test(pg.trail || '') || ['na', 'aka', 'va', 'pa', 'vapa'].includes(pg.entry?.lokiliLower)) break;
+                if (pg.entry?.cat === 'pronouns' && ['miä', 'tiä', 'siä', 'mii', 'tii', 'sii'].includes(pg.entry.lokiliLower)) {
+                  hasSubjInClause = true;
+                  break;
+                }
+              }
+              if (!hasSubjInClause) {
+                const pronEntry = LEXICON.find(x => x.lokiliLower === IMPL_PRON[analyzed.impliedPerson]);
                 if (pronEntry) {
-                  glossItems.push({ token: `(${pronEntry.lokili})`, lead: '', trail: '', entry: pronEntry, morph: { plural: false, caseType: null }, implicit: true });
+                  glossItems.push({
+                    token: pronEntry.lokili,
+                    lead: analyzed.lead || '',
+                    core: pronEntry.lokili,
+                    trail: '',
+                    entry: pronEntry,
+                    morph: { plural: false, caseType: null },
+                    hideSource: true
+                  });
+                  analyzed.lead = '';
                 }
               }
             }
+
             glossItems.push(analyzed);
           }
           idx++;
+        }
+      }
+
+      // --- FINNISH ACCUSATIVE (-n TOTAL OBJECT) VS. GENITIVE DISAMBIGUATION PASS ---
+      // In Finnish, singular total objects (e.g. "sen", "kirjan", "uuden kirjan", "tämän") look identical to genitives (-n).
+      // Reclassify them as direct objects (base form in Lokili, "sinu" for "sen", natural object in English) when governed by a transitive verb
+      // and NOT modifying a following noun — while keeping true genitives ("Lokin kirkuna", "kirjan nimi", "sen nimi", "minun") intact!
+      if (detected === 'fi') {
+        const FI_INTRANSITIVE_VERBS = new Set([
+          'vano', 'toto', 'peso', 'lemo', 'leto', 'tulo', 'kolo', 'laho',
+          'eso', 'lumo', 'löso', 'selo', 'kajo', 'esko', 'noso', 'tipo',
+          'külo', 'hemo', 'sopo', 'alo', 'melo', 'püho', 'vino', 'kako',
+          'naki-veso', 'kilo', 'ilo', 'koko', 'tevo', 'tüno', 'vilo',
+          'sülo', 'veso', 'jäko', 'lato', 'liko', 'puto'
+        ]);
+        const FI_ALWAYS_GEN_PRONS = new Set(['mine', 'tine', 'miite', 'tiite', 'siite']);
+        const FI_ADVERB_LOK = new Set(['täsä', 'tosa', 'usase', 'alu', 'ikuse', 'kosu', 'sopuse', 'samase', 'ula', 'ülä', 'övö']);
+        const isNounLikeFi = (g) => {
+          if (!g || !g.entry) return false;
+          const lok = g.entry.lokiliLower;
+          if (FI_ADVERB_LOK.has(lok)) return false;
+          if (g.entry.cat === 'pronouns' || g.entry.cat === 'greetings' || g.entry.cat === 'questions') return false;
+          if (g.entry.ending === '-O') return false;
+          return ['-I', '-U', '-OJA', 'ARCHAIC'].includes(g.entry.ending) || (g.entry.cat === 'people' && g.entry.ending !== '-SA');
+        };
+        const isAdjLikeFi = (g) => {
+          if (!g || !g.entry) return false;
+          const lok = g.entry.lokiliLower;
+          if (FI_ADVERB_LOK.has(lok) || ['na', 'aka', 'va', 'pa', 'vapa'].includes(lok)) return false;
+          return g.entry.ending === '-A' || g.entry.ending === '-SA';
+        };
+        const isDemFi = (g) => !!(g?.entry && (g.entry.lokiliLower === 'tämä' || g.entry.lokiliLower === 'toma'));
+
+        const hasTransitiveVerbBefore = (pos) => {
+          let seenConj = false;
+          for (let k = pos - 1; k >= 0; k--) {
+            const prev = glossItems[k];
+            if (/[.!?,;:]/.test(prev.trail || '')) break;
+            const pLok = prev.entry?.lokiliLower || '';
+            if (pLok === 'aka' || pLok === 'pa' || pLok === 'vapa') break;
+            if (pLok === 'na' || pLok === 'va') {
+              seenConj = true;
+              continue;
+            }
+            if (prev.entry?.ending === '-O' && !prev.morph?.phrase) {
+              if (FI_INTRANSITIVE_VERBS.has(pLok)) {
+                if (!seenConj) return false;
+                break;
+              }
+              return true;
+            }
+          }
+          return false;
+        };
+
+        const modifiesFollowingNoun = (pos) => {
+          const cur = glossItems[pos];
+          if (/[.!?,;:]/.test(cur.trail || '')) return false;
+          const curIsNounOrPron = !isAdjLikeFi(cur) || cur.entry?.cat === 'people';
+          for (let k = pos + 1; k < glossItems.length; k++) {
+            const nxt = glossItems[k];
+            if (!nxt.entry) return false;
+            const nLok = nxt.entry.lokiliLower;
+            if (nLok === 'ula') continue;
+            if (isAdjLikeFi(nxt) && !isDemFi(nxt)) {
+              if (/[.!?,;:]/.test(nxt.trail || '')) return false;
+              continue;
+            }
+            if (isNounLikeFi(nxt)) {
+              const isProperPlace = nxt.entry.cat === 'nature' && /^[A-ZÄÖÜ]/.test(nxt.entry.lokili);
+              if (isProperPlace && nxt.morph?.fiCase && ['ine', 'ade', 'ela', 'ill', 'all', 'abl'].includes(nxt.morph.fiCase)) {
+                return false;
+              }
+              if (curIsNounOrPron && nxt.morph?.fiCase && ['all', 'abl', 'ela', 'ade'].includes(nxt.morph.fiCase) && nxt.entry.cat !== 'nature') {
+                return false;
+              }
+              return true;
+            }
+            return false;
+          }
+          return false;
+        };
+
+        const accHeadIndices = new Set();
+        for (let i = 0; i < glossItems.length; i++) {
+          const g = glossItems[i];
+          if (!g.entry || !g.morph || g.morph.plural || g.morph.fiCase !== 'gen') continue;
+          const lok = g.entry.lokiliLower;
+
+          if (FI_ALWAYS_GEN_PRONS.has(lok)) continue;
+          if (lok === 'sine' && !g.morph.inanimate) continue;
+          if (!hasTransitiveVerbBefore(i)) continue;
+
+          // 1. Inanimate "sen" -> accusative object pronoun "sinu" / "it"
+          if (lok === 'sine' && g.morph.inanimate) {
+            if (!modifiesFollowingNoun(i)) {
+              const sinuEntry = LEXICON.find(x => x.lokiliLower === 'sinu');
+              if (sinuEntry) {
+                g.entry = sinuEntry;
+                g.morph = { plural: false, caseType: 'part', fiCase: 'acc', inanimate: true, isDirectObj: true };
+                accHeadIndices.add(i);
+              }
+            }
+            continue;
+          }
+
+          // 2. Standalone demonstrative "tämän" / "tuon" -> accusative object
+          if (isDemFi(g)) {
+            if (!modifiesFollowingNoun(i)) {
+              g.morph = { plural: false, caseType: null, fiCase: 'acc', isDirectObj: true };
+              accHeadIndices.add(i);
+            }
+            continue;
+          }
+
+          // 3. Singular noun in "-n" -> accusative direct object (base form in Lokili SVO)
+          if (isNounLikeFi(g) && !modifiesFollowingNoun(i)) {
+            g.morph = { plural: false, caseType: null, fiCase: 'acc', isDirectObj: true };
+            accHeadIndices.add(i);
+          }
+        }
+
+        // Agreeing "-n" adjectives & demonstratives preceding an accusative head noun (e.g. "uuden kirjan", "tämän kirjan")
+        for (const headIdx of accHeadIndices) {
+          for (let k = headIdx - 1; k >= 0; k--) {
+            const m = glossItems[k];
+            if (/[.!?,;:]/.test(m.trail || '')) break;
+            if (m.entry?.lokiliLower === 'ula') continue;
+            if (m.morph && !m.morph.plural && m.morph.fiCase === 'gen' && (isDemFi(m) || (isAdjLikeFi(m) && m.entry.cat !== 'people'))) {
+              m.morph = { plural: false, caseType: null, fiCase: 'acc', isObjMod: true };
+            } else {
+              break;
+            }
+          }
+        }
+
+        // Assign natural English article ("a"/"an" for singular countable total objects, "the" for mass nouns) when no determiner/genitive precedes the NP
+        for (const headIdx of accHeadIndices) {
+          const head = glossItems[headIdx];
+          if (!head.entry || head.entry.cat === 'pronouns' || head.entry.cat === 'language' || isDemFi(head)) continue;
+          if (/^[A-ZÄÖÜ]/.test(head.entry.lokili) || head.morph?.plural) continue;
+
+          let npStart = headIdx;
+          while (npStart > 0) {
+            const prevM = glossItems[npStart - 1];
+            if (/[.!?,;:]/.test(prevM.trail || '')) break;
+            if (prevM.morph?.isObjMod || prevM.entry?.lokiliLower === 'ula') {
+              npStart--;
+            } else {
+              break;
+            }
+          }
+
+          if (isDemFi(glossItems[npStart])) continue;
+          const beforeNP = npStart > 0 ? glossItems[npStart - 1] : null;
+          const beforeLok = beforeNP?.entry?.lokiliLower || '';
+          const hasDetBefore = !!(beforeNP && !/[.!?,;:]/.test(beforeNP.trail || '') && (
+            DETERMINER_WORDS.has(beforeLok) ||
+            beforeNP.morph?.caseType === 'gen' ||
+            (beforeNP.entry?.cat === 'pronouns' && ['mine', 'tine', 'sine', 'miite', 'tiite', 'siite'].includes(beforeLok))
+          ));
+          if (hasDetBefore) continue;
+
+          const fiHeadSense = getContextualSense(glossItems, headIdx, 'fi', detected).toLowerCase();
+          glossItems[npStart].enArticle = FI_MASS_NOUNS.has(fiHeadSense) ? 'the' : 'a';
         }
       }
 
@@ -4052,8 +4378,8 @@
         if (relativeInsertBefore.has(i)) {
           fiParts.push('mitä');
         }
-        let fiWord = getContextualSense(glossItems, i, 'fi');
-        const nextFiSense = next?.entry ? getContextualSense(glossItems, i + 1, 'fi').toLowerCase() : '';
+        let fiWord = getContextualSense(glossItems, i, 'fi', detected);
+        const nextFiSense = next?.entry ? getContextualSense(glossItems, i + 1, 'fi', detected).toLowerCase() : '';
         const isMassNounNext = FI_MASS_NOUNS.has(nextFiSense);
 
         if (g.compRole === 'emphSuperl') {
@@ -4076,7 +4402,7 @@
         fiParts.push(`${g.lead || ''}${fiWord}${g.trail || ''}`);
 
         // 3. ENGLISH OUTPUT (Contextual sense + Comparison + Case/Verb Inflection)
-        let enWord = getContextualSense(glossItems, i, 'en');
+        let enWord = getContextualSense(glossItems, i, 'en', detected);
         if (g.compRole === 'emphSuperl') {
           enWord = `the ${enSuperlative(enWord)} of all`;
         } else if (g.compRole === 'superl') {
@@ -4091,6 +4417,12 @@
           if (i === 0 && g.morph?.caseType === 'gen' && !g.morph?.plural && ANIMAL_WORDS.has(lok)) {
             enWord = `the ${enWord}`;
           }
+        }
+        if (g.enArticle && !/^(the|a|an)\s+/i.test(enWord)) {
+          const art = g.enArticle === 'a' && /^[aeiou]/i.test(enWord) && !/^(eu|uni|use|one)/i.test(enWord)
+            ? 'an'
+            : g.enArticle;
+          enWord = `${art} ${enWord}`;
         }
         enWord = formatTargetCase(enWord, 'en', g.entry, sourceWasMidCap);
         // Omit trailing comma right before English contact relative clause ("music we know")
