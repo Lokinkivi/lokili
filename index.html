@@ -2338,14 +2338,21 @@
       if (!morph) return tags;
       if (morph.phrase) tags.push(uiLang === 'fi' ? 'FRAASI' : 'PHRASE');
       if (morph.plural) tags.push(uiLang === 'fi' ? 'MONIKKO' : 'PLURAL');
+      const isIrregPron = entry?.cat === 'pronouns';
       if (morph.caseType === 'gen') {
-        const usesNe = morph.suffix === 'ne' ||
-          (!morph.suffix && entry && (entry.ending === '-A' || entry.ending === '-SA' || entry.ending === '-OJA' || entry.lokiliLower.endsWith('a') || entry.lokiliLower.endsWith('ä')));
-        tags.push(usesNe
-          ? (uiLang === 'fi' ? '-NE genetiivi' : '-NE genitive')
-          : (uiLang === 'fi' ? '-E genetiivi' : '-E genitive'));
+        if (isIrregPron) {
+          tags.push(uiLang === 'fi' ? 'genetiivi' : 'genitive');
+        } else {
+          const usesNe = morph.suffix === 'ne' ||
+            (!morph.suffix && entry && (entry.ending === '-A' || entry.ending === '-SA' || entry.ending === '-OJA' || entry.lokiliLower.endsWith('a') || entry.lokiliLower.endsWith('ä')));
+          tags.push(usesNe
+            ? (uiLang === 'fi' ? '-NE genetiivi' : '-NE genitive')
+            : (uiLang === 'fi' ? '-E genetiivi' : '-E genitive'));
+        }
       } else if (morph.caseType === 'part') {
-        tags.push(uiLang === 'fi' ? '-NU kohde/part.' : '-NU target/part.');
+        tags.push(isIrregPron
+          ? (uiLang === 'fi' ? 'kohde / part.' : 'target / obj.')
+          : (uiLang === 'fi' ? '-NU kohde/part.' : '-NU target/part.'));
       } else if (morph.caseType === 'ine') {
         tags.push(uiLang === 'fi' ? '-SE tila/iness.' : '-SE state/in');
       }
@@ -2460,180 +2467,299 @@
       return FI_BACK_VOWEL_RE.test(word) ? 'a' : 'ä';
     }
 
-    // Irregular / high-frequency Finnish noun stem table: { gen, part, ine, all, plNom, plGen, plPart, plIne, langTra }
+    // Complete Lokili personal pronoun paradigm (nominative, genitive, target/oblique, state -se)
+    const LOKILI_PRONOUN_PARADIGM = {
+      miä:   { base: 'miä', gen: 'mine',  part: 'minu',  ine: 'miäse' },
+      mine:  { base: 'miä', gen: 'mine',  part: 'minu',  ine: 'miäse' },
+      minu:  { base: 'miä', gen: 'mine',  part: 'minu',  ine: 'miäse' },
+      mii:   { base: 'mii', gen: 'miite', part: 'miitu', ine: 'miise' },
+      miite: { base: 'mii', gen: 'miite', part: 'miitu', ine: 'miise' },
+      miitu: { base: 'mii', gen: 'miite', part: 'miitu', ine: 'miise' },
+      tiä:   { base: 'tiä', gen: 'tine',  part: 'tinu',  ine: 'tiäse' },
+      tine:  { base: 'tiä', gen: 'tine',  part: 'tinu',  ine: 'tiäse' },
+      tinu:  { base: 'tiä', gen: 'tine',  part: 'tinu',  ine: 'tiäse' },
+      tii:   { base: 'tii', gen: 'tiite', part: 'tiitu', ine: 'tiise' },
+      tiite: { base: 'tii', gen: 'tiite', part: 'tiitu', ine: 'tiise' },
+      tiitu: { base: 'tii', gen: 'tiite', part: 'tiitu', ine: 'tiise' },
+      siä:   { base: 'siä', gen: 'sine',  part: 'sinu',  ine: 'siäse' },
+      sine:  { base: 'siä', gen: 'sine',  part: 'sinu',  ine: 'siäse' },
+      sinu:  { base: 'siä', gen: 'sine',  part: 'sinu',  ine: 'siäse' },
+      sii:   { base: 'sii', gen: 'siite', part: 'siitu', ine: 'siise' },
+      siite: { base: 'sii', gen: 'siite', part: 'siitu', ine: 'siise' },
+      siitu: { base: 'sii', gen: 'siite', part: 'siitu', ine: 'siise' }
+    };
+
+    // Complete Finnish pronoun declension table (for accurate FI synthesis & reverse recognition)
+    const FI_PRONOUN_DECL = {
+      'minä': { nom: 'minä', gen: 'minun', part: 'minua', acc: 'minut', ine: 'minussa', ela: 'minusta', ill: 'minuun', ade: 'minulla', abl: 'minulta', all: 'minulle', lokBase: 'miä', lokGen: 'mine', lokPart: 'minu' },
+      'sinä': { nom: 'sinä', gen: 'sinun', part: 'sinua', acc: 'sinut', ine: 'sinussa', ela: 'sinusta', ill: 'sinuun', ade: 'sinulla', abl: 'sinulta', all: 'sinulle', lokBase: 'tiä', lokGen: 'tine', lokPart: 'tinu' },
+      'hän':  { nom: 'hän',  gen: 'hänen', part: 'häntä', acc: 'hänet', ine: 'hänessä', ela: 'hänestä', ill: 'häneen', ade: 'hänellä', abl: 'häneltä', all: 'hänelle', lokBase: 'siä', lokGen: 'sine', lokPart: 'sinu' },
+      'se':   { nom: 'se',   gen: 'sen',   part: 'sitä',  acc: 'sen',   ine: 'siinä',   ela: 'siitä',   ill: 'siihen', ade: 'sillä',   abl: 'siltä',   all: 'sille',   lokBase: 'siä', lokGen: 'sine', lokPart: 'sinu', inanimate: true },
+      'me':   { nom: 'me',   gen: 'meidän', part: 'meitä', acc: 'meidät', ine: 'meissä', ela: 'meistä', ill: 'meihin', ade: 'meillä', abl: 'meiltä', all: 'meille', lokBase: 'mii', lokGen: 'miite', lokPart: 'miitu' },
+      'te':   { nom: 'te',   gen: 'teidän', part: 'teitä', acc: 'teidät', ine: 'teissä', ela: 'teistä', ill: 'teihin', ade: 'teillä', abl: 'teiltä', all: 'teille', lokBase: 'tii', lokGen: 'tiite', lokPart: 'tiitu' },
+      'he':   { nom: 'he',   gen: 'heidän', part: 'heitä', acc: 'heidät', ine: 'heissä', ela: 'heistä', ill: 'heihin', ade: 'heillä', abl: 'heiltä', all: 'heille', lokBase: 'sii', lokGen: 'siite', lokPart: 'siitu' },
+      'ne':   { nom: 'ne',   gen: 'niiden', part: 'niitä', acc: 'ne',     ine: 'niissä', ela: 'niistä', ill: 'niihin', ade: 'niillä', abl: 'niiltä', all: 'niille', lokBase: 'sii', lokGen: 'siite', lokPart: 'siitu', inanimate: true },
+      'tämä': { nom: 'tämä', gen: 'tämän', part: 'tätä',  acc: 'tämän', ine: 'tässä',   ela: 'tästä',   ill: 'tähän',  ade: 'tällä',   abl: 'tältä',   all: 'tälle',  lokBase: 'tämä', inanimate: true },
+      'tuo':  { nom: 'tuo',  gen: 'tuon',  part: 'tuota', acc: 'tuon',  ine: 'tuossa',  ela: 'tuosta',  ill: 'tuohon', ade: 'tuolla',  abl: 'tuolta',  all: 'tuolle', lokBase: 'toma', inanimate: true }
+    };
+
+    // Build reverse lookup map for ALL inflected Finnish pronoun forms (sinusta, siitä, minusta, hänessä, meistä...)
+    const FI_PRONOUN_FORMS = {};
+    for (const [fiLemma, d] of Object.entries(FI_PRONOUN_DECL)) {
+      const mapping = [
+        [d.gen,  d.lokGen || d.lokBase,  'gen',  'gen'],
+        [d.part, d.lokPart || d.lokBase, 'part', 'part'],
+        [d.acc,  d.lokPart || d.lokBase, 'part', 'acc'],
+        [d.ela,  d.lokPart || d.lokBase, 'part', 'ela'],
+        [d.ill,  d.lokPart || d.lokBase, 'part', 'ill'],
+        [d.abl,  d.lokPart || d.lokBase, 'part', 'abl'],
+        [d.all,  d.lokPart || d.lokBase, 'part', 'all'],
+        [d.ine,  d.lokBase,              'ine',  'ine'],
+        [d.ade,  d.lokBase,              'ine',  'ade']
+      ];
+      for (const [form, lokKey, caseType, fiCase] of mapping) {
+        // Do not overwrite nominatives or already registered genitive forms (e.g., sen = gen before acc, tässä/tuossa stay in dictionary)
+        if (!form || form === d.nom) continue;
+        if (form === 'tässä' || form === 'tuossa' || form === 'tuolla') continue;
+        if (!FI_PRONOUN_FORMS[form]) {
+          FI_PRONOUN_FORMS[form] = {
+            fiLemma,
+            lokKey,
+            caseType,
+            fiCase,
+            inanimate: !!d.inanimate
+          };
+        }
+      }
+    }
+
+    // Irregular / high-frequency Finnish noun stem table
     const FI_NOUN_OVERRIDES = {
-      'suomi': { gen: 'Suomen', part: 'Suomea', ine: 'Suomessa', all: 'Suomelle' },
-      'suomen kieli': { gen: 'suomen kielen', part: 'suomea', ine: 'suomeksi', all: 'suomen kielelle', langTra: 'suomeksi' },
-      'lokilin kieli': { gen: 'lokilin kielen', part: 'lokilin kieltä', ine: 'lokiliksi', all: 'lokilin kielelle', langTra: 'lokiliksi' },
-      'englannin kieli': { gen: 'englannin kielen', part: 'englantia', ine: 'englanniksi', langTra: 'englanniksi' },
-      'ruotsin kieli': { gen: 'ruotsin kielen', part: 'ruotsia', ine: 'ruotsiksi', langTra: 'ruotsiksi' },
-      'norjan kieli': { gen: 'norjan kielen', part: 'norjaa', ine: 'norjaksi', langTra: 'norjaksi' },
-      'tanskan kieli': { gen: 'tanskan kielen', part: 'tanskaa', ine: 'tanskaksi', langTra: 'tanskaksi' },
-      'islannin kieli': { gen: 'islannin kielen', part: 'islantia', ine: 'islanniksi', langTra: 'islanniksi' },
-      'viron kieli': { gen: 'viron kielen', part: 'viroa', ine: 'viroksi', langTra: 'viroksi' },
-      'latvian kieli': { gen: 'latvian kielen', part: 'latviaa', ine: 'latviaksi', langTra: 'latviaksi' },
-      'venäjän kieli': { gen: 'venäjän kielen', part: 'venäjää', ine: 'venäjäksi', langTra: 'venäjäksi' },
-      'karjalan kieli': { gen: 'karjalan kielen', part: 'karjalaa', ine: 'karjalaksi', langTra: 'karjalaksi' },
-      'saamen kieli': { gen: 'saamen kielen', part: 'saamea', ine: 'saameksi', langTra: 'saameksi' },
-      'kieli': { gen: 'kielen', part: 'kieltä', ine: 'kielessä', plNom: 'kielet', plGen: 'kielten', plPart: 'kieliä', plIne: 'kielissä' },
-      'kirkuna': { gen: 'kirkunan', part: 'kirkunaa', ine: 'kirkunassa', plNom: 'kirkunat', plGen: 'kirkunoiden' },
-      'lokki': { gen: 'lokin', part: 'lokkia', ine: 'lokissa', plNom: 'lokit', plGen: 'lokkien', plPart: 'lokkeja', plIne: 'lokeissa' },
-      'laulu': { gen: 'laulun', part: 'laulua', ine: 'laulussa', plNom: 'laulut', plGen: 'laulujen', plPart: 'lauluja', plIne: 'lauluissa' },
-      'vesi': { gen: 'veden', part: 'vettä', ine: 'vedessä', plNom: 'vedet', plGen: 'vesien', plPart: 'vesiä', plIne: 'vesissä' },
-      'meri': { gen: 'meren', part: 'merta', ine: 'meressä', plNom: 'meret', plGen: 'merien', plPart: 'meriä', plIne: 'merissä' },
-      'järvi': { gen: 'järven', part: 'järveä', ine: 'järvessä', plNom: 'järvet', plGen: 'järvien', plPart: 'järviä', plIne: 'järvissä' },
-      'saari': { gen: 'saaren', part: 'saarta', ine: 'saaressa', plNom: 'saaret', plGen: 'saarten', plPart: 'saaria', plIne: 'saarissa' },
-      'kivi': { gen: 'kiven', part: 'kiveä', ine: 'kivessä', plNom: 'kivet', plGen: 'kivien', plPart: 'kiviä', plIne: 'kivissä' },
-      'tuli': { gen: 'tulen', part: 'tulta', ine: 'tulessa', plNom: 'tulet', plGen: 'tulien', plPart: 'tulia', plIne: 'tulissa' },
-      'tuuli': { gen: 'tuulen', part: 'tuulta', ine: 'tuulessa', plNom: 'tuulet', plGen: 'tuulien', plPart: 'tuulia', plIne: 'tuulissa' },
-      'lumi': { gen: 'lumen', part: 'lunta', ine: 'lumessa', plNom: 'lumet', plGen: 'lumien', plPart: 'lumia', plIne: 'lumissa' },
-      'nimi': { gen: 'nimen', part: 'nimeä', ine: 'nimessä', plNom: 'nimet', plGen: 'nimien', plPart: 'nimiä', plIne: 'nimissä' },
-      'sydän': { gen: 'sydämen', part: 'sydäntä', ine: 'sydämessä', plNom: 'sydämet', plGen: 'sydämien', plPart: 'sydämiä', plIne: 'sydämissä' },
-      'mies': { gen: 'miehen', part: 'miestä', ine: 'miehessä', plNom: 'miehet', plGen: 'miesten', plPart: 'miehiä', plIne: 'miehissä' },
-      'susi': { gen: 'suden', part: 'sutta', ine: 'sudessa', plNom: 'sudet', plGen: 'susien', plPart: 'susia', plIne: 'susissa' },
-      'aika': { gen: 'ajan', part: 'aikaa', ine: 'ajassa', plNom: 'ajat', plGen: 'aikojen', plPart: 'aikoja', plIne: 'ajoissa' },
-      'päivä': { gen: 'päivän', part: 'päivää', ine: 'päivässä', plNom: 'päivät', plGen: 'päivien', plPart: 'päiviä', plIne: 'päivissä' },
-      'vuosi': { gen: 'vuoden', part: 'vuotta', ine: 'vuodessa', plNom: 'vuodet', plGen: 'vuosien', plPart: 'vuosia', plIne: 'vuosissa' },
-      'viikko': { gen: 'viikon', part: 'viikkoa', ine: 'viikossa', plNom: 'viikot', plGen: 'viikkojen', plPart: 'viikkoja', plIne: 'viikoissa' },
-      'maa': { gen: 'maan', part: 'maata', ine: 'maassa', plNom: 'maat', plGen: 'maiden', plPart: 'maita', plIne: 'maissa' },
-      'yö': { gen: 'yön', part: 'yötä', ine: 'yössä', plNom: 'yöt', plGen: 'öiden', plPart: 'öitä', plIne: 'öissä' },
-      'tie': { gen: 'tien', part: 'tietä', ine: 'tiessä', plNom: 'tiet', plGen: 'teiden', plPart: 'teitä', plIne: 'teissä' },
-      'kuu': { gen: 'kuun', part: 'kuuta', ine: 'kuussa', plNom: 'kuut', plGen: 'kuiden', plPart: 'kuita', plIne: 'kuissa' },
-      'pää': { gen: 'pään', part: 'päätä', ine: 'päässä', plNom: 'päät', plGen: 'päiden', plPart: 'päitä', plIne: 'päissä' },
-      'hän': { gen: 'hänen', part: 'häntä', ine: 'hänessä', all: 'hänelle' },
-      'se': { gen: 'sen', part: 'sitä', ine: 'siinä', all: 'sille' },
-      'rakkaus': { gen: 'rakkauden', part: 'rakkautta', ine: 'rakkaudessa', plNom: 'rakkaudet', plGen: 'rakkauksien' },
-      'totuus': { gen: 'totuuden', part: 'totuutta', ine: 'totuudessa', plNom: 'totuudet', plGen: 'totuuksien' },
-      'vapaus': { gen: 'vapauden', part: 'vapautta', ine: 'vapaudessa', plNom: 'vapaudet', plGen: 'vapauksien' },
-      'kauneus': { gen: 'kauneuden', part: 'kauneutta', ine: 'kauneudessa' },
-      'terveys': { gen: 'terveyden', part: 'terveyttä', ine: 'terveydessä' },
-      'hallinto': { gen: 'hallinnon', part: 'hallintoa', ine: 'hallinnossa', plNom: 'hallinnot', plGen: 'hallintojen' },
-      'hallitus': { gen: 'hallituksen', part: 'hallitusta', ine: 'hallituksessa', plNom: 'hallitukset', plGen: 'hallitusten' },
-      'kaupunki': { gen: 'kaupungin', part: 'kaupunkia', ine: 'kaupungissa', plNom: 'kaupungit', plGen: 'kaupunkien' },
-      'luonto': { gen: 'luonnon', part: 'luontoa', ine: 'luonnossa' },
-      'musiikki': { gen: 'musiikin', part: 'musiikkia', ine: 'musiikissa' },
-      'lintu': { gen: 'linnun', part: 'lintua', ine: 'linnussa', plNom: 'linnut', plGen: 'lintujen', plPart: 'lintuja' },
-      'ranta': { gen: 'rannan', part: 'rantaa', ine: 'rannassa', plNom: 'rannat', plGen: 'rantojen', plPart: 'rantoja' },
-      'koti': { gen: 'kodin', part: 'kotia', ine: 'kodissa', plNom: 'kodit', plGen: 'kotien', plPart: 'koteja' },
-      'pesä': { gen: 'pesän', part: 'pesää', ine: 'pesässä', plNom: 'pesät', plGen: 'pesien', plPart: 'pesiä' },
-      'paikka': { gen: 'paikan', part: 'paikkaa', ine: 'paikassa', plNom: 'paikat', plGen: 'paikkojen' },
-      'kauppa': { gen: 'kaupan', part: 'kauppaa', ine: 'kaupassa', plNom: 'kaupat', plGen: 'kauppojen' },
-      'ruoka': { gen: 'ruoan', part: 'ruokaa', ine: 'ruoassa', plNom: 'ruoat', plGen: 'ruokien' },
-      'leipä': { gen: 'leivän', part: 'leipää', ine: 'leivässä', plNom: 'leivät', plGen: 'leipien' },
-      'tieto': { gen: 'tiedon', part: 'tietoa', ine: 'tiedossa', plNom: 'tiedot', plGen: 'tietojen' },
-      'tiedote': { gen: 'tiedotteen', part: 'tiedotetta', ine: 'tiedotteessa', plNom: 'tiedotteet', plGen: 'tiedotteiden' },
-      'kirja': { gen: 'kirjan', part: 'kirjaa', ine: 'kirjassa', plNom: 'kirjat', plGen: 'kirjojen', plPart: 'kirjoja' },
-      'sana': { gen: 'sanan', part: 'sanaa', ine: 'sanassa', plNom: 'sanat', plGen: 'sanojen', plPart: 'sanoja' },
-      'ystävä': { gen: 'ystävän', part: 'ystävää', ine: 'ystävässä', all: 'ystävälle', plNom: 'ystävät', plGen: 'ystävien', plPart: 'ystäviä' },
-      'koulu': { gen: 'koulun', part: 'koulua', ine: 'koulussa', plNom: 'koulut', plGen: 'koulujen' },
-      'yliopisto': { gen: 'yliopiston', part: 'yliopistoa', ine: 'yliopistossa', plNom: 'yliopistot', plGen: 'yliopistojen' },
-      'luettelo': { gen: 'luettelon', part: 'luetteloa', ine: 'luettelossa', plNom: 'luettelot', plGen: 'luetteloiden' },
-      'numero': { gen: 'numeron', part: 'numeroa', ine: 'numerossa', plNom: 'numerot', plGen: 'numeroiden' },
-      'luku': { gen: 'luvun', part: 'lukua', ine: 'luvussa', plNom: 'luvut', plGen: 'lukujen' },
-      'suomalainen': { gen: 'suomalaisen', part: 'suomalaista', ine: 'suomalaisessa', all: 'suomalaiselle', plNom: 'suomalaiset', plGen: 'suomalaisten', plPart: 'suomalaisia', plIne: 'suomalaisissa' },
-      'ihminen': { gen: 'ihmisen', part: 'ihmistä', ine: 'ihmisessä', all: 'ihmiselle', plNom: 'ihmiset', plGen: 'ihmisten', plPart: 'ihmisiä', plIne: 'ihmisissä' }
+      'suomi': { gen: 'Suomen', part: 'Suomea', ine: 'Suomessa', ela: 'Suomesta', ill: 'Suomeen', ade: 'Suomella', abl: 'Suomelta', all: 'Suomelle' },
+      'suomen kieli': { gen: 'suomen kielen', part: 'suomea', ine: 'suomeksi', ela: 'suomen kielestä', all: 'suomen kielelle', langTra: 'suomeksi' },
+      'lokilin kieli': { gen: 'lokilin kielen', part: 'lokilin kieltä', ine: 'lokiliksi', ela: 'lokilin kielestä', all: 'lokilin kielelle', langTra: 'lokiliksi' },
+      'englannin kieli': { gen: 'englannin kielen', part: 'englantia', ine: 'englanniksi', ela: 'englannin kielestä', langTra: 'englanniksi' },
+      'ruotsin kieli': { gen: 'ruotsin kielen', part: 'ruotsia', ine: 'ruotsiksi', ela: 'ruotsin kielestä', langTra: 'ruotsiksi' },
+      'norjan kieli': { gen: 'norjan kielen', part: 'norjaa', ine: 'norjaksi', ela: 'norjan kielestä', langTra: 'norjaksi' },
+      'tanskan kieli': { gen: 'tanskan kielen', part: 'tanskaa', ine: 'tanskaksi', ela: 'tanskan kielestä', langTra: 'tanskaksi' },
+      'islannin kieli': { gen: 'islannin kielen', part: 'islantia', ine: 'islanniksi', ela: 'islannin kielestä', langTra: 'islanniksi' },
+      'viron kieli': { gen: 'viron kielen', part: 'viroa', ine: 'viroksi', ela: 'viron kielestä', langTra: 'viroksi' },
+      'latvian kieli': { gen: 'latvian kielen', part: 'latviaa', ine: 'latviaksi', ela: 'latvian kielestä', langTra: 'latviaksi' },
+      'venäjän kieli': { gen: 'venäjän kielen', part: 'venäjää', ine: 'venäjäksi', ela: 'venäjän kielestä', langTra: 'venäjäksi' },
+      'karjalan kieli': { gen: 'karjalan kielen', part: 'karjalaa', ine: 'karjalaksi', ela: 'karjalan kielestä', langTra: 'karjalaksi' },
+      'saamen kieli': { gen: 'saamen kielen', part: 'saamea', ine: 'saameksi', ela: 'saamen kielestä', langTra: 'saameksi' },
+      'kieli': { gen: 'kielen', part: 'kieltä', ine: 'kielessä', ela: 'kielestä', ill: 'kieleen', ade: 'kielellä', abl: 'kieleltä', all: 'kielelle', plNom: 'kielet', plGen: 'kielten', plPart: 'kieliä', plIne: 'kielissä', plEla: 'kielistä' },
+      'kirkuna': { gen: 'kirkunan', part: 'kirkunaa', ine: 'kirkunassa', ela: 'kirkunasta', ill: 'kirkunaan', plNom: 'kirkunat', plGen: 'kirkunoiden' },
+      'lokki': { gen: 'lokin', part: 'lokkia', ine: 'lokissa', ela: 'lokista', ill: 'lokkiin', ade: 'lokilla', all: 'lokille', plNom: 'lokit', plGen: 'lokkien', plPart: 'lokkeja', plIne: 'lokeissa', plEla: 'lokeista' },
+      'laulu': { gen: 'laulun', part: 'laulua', ine: 'laulussa', ela: 'laulusta', ill: 'lauluun', plNom: 'laulut', plGen: 'laulujen', plPart: 'lauluja', plIne: 'lauluissa', plEla: 'lauluista' },
+      'vesi': { gen: 'veden', part: 'vettä', ine: 'vedessä', ela: 'vedestä', ill: 'veteen', ade: 'vedellä', abl: 'vedeltä', all: 'vedelle', plNom: 'vedet', plGen: 'vesien', plPart: 'vesiä', plIne: 'vesissä', plEla: 'vesistä' },
+      'meri': { gen: 'meren', part: 'merta', ine: 'meressä', ela: 'merestä', ill: 'mereen', ade: 'merellä', abl: 'mereltä', all: 'merelle', plNom: 'meret', plGen: 'merien', plPart: 'meriä', plIne: 'merissä', plEla: 'meristä' },
+      'järvi': { gen: 'järven', part: 'järveä', ine: 'järvessä', ela: 'järvestä', ill: 'järveen', ade: 'järvellä', abl: 'järveltä', all: 'järvelle', plNom: 'järvet', plGen: 'järvien', plPart: 'järviä', plIne: 'järvissä', plEla: 'järvistä' },
+      'saari': { gen: 'saaren', part: 'saarta', ine: 'saaressa', ela: 'saaresta', ill: 'saareen', ade: 'saarella', abl: 'saarelta', all: 'saarelle', plNom: 'saaret', plGen: 'saarten', plPart: 'saaria', plIne: 'saarissa', plEla: 'saarista' },
+      'kivi': { gen: 'kiven', part: 'kiveä', ine: 'kivessä', ela: 'kivestä', ill: 'kiveen', ade: 'kivellä', abl: 'kiveltä', all: 'kivelle', plNom: 'kivet', plGen: 'kivien', plPart: 'kiviä', plIne: 'kivissä', plEla: 'kivistä' },
+      'tuli': { gen: 'tulen', part: 'tulta', ine: 'tulessa', ela: 'tulesta', ill: 'tuleen', plNom: 'tulet', plGen: 'tulien', plPart: 'tulia', plIne: 'tulissa', plEla: 'tulista' },
+      'tuuli': { gen: 'tuulen', part: 'tuulta', ine: 'tuulessa', ela: 'tuulesta', ill: 'tuuleen', plNom: 'tuulet', plGen: 'tuulien', plPart: 'tuulia', plIne: 'tuulissa', plEla: 'tuulista' },
+      'lumi': { gen: 'lumen', part: 'lunta', ine: 'lumessa', ela: 'lumesta', ill: 'lumeen', plNom: 'lumet', plGen: 'lumien', plPart: 'lumia', plIne: 'lumissa', plEla: 'lumista' },
+      'nimi': { gen: 'nimen', part: 'nimeä', ine: 'nimessä', ela: 'nimestä', ill: 'nimeen', plNom: 'nimet', plGen: 'nimien', plPart: 'nimiä', plIne: 'nimissä', plEla: 'nimistä' },
+      'sydän': { gen: 'sydämen', part: 'sydäntä', ine: 'sydämessä', ela: 'sydämestä', ill: 'sydämeen', plNom: 'sydämet', plGen: 'sydämien', plPart: 'sydämiä', plIne: 'sydämissä', plEla: 'sydämistä' },
+      'mies': { gen: 'miehen', part: 'miestä', ine: 'miehessä', ela: 'miehestä', ill: 'mieheen', ade: 'miehellä', abl: 'mieheltä', all: 'miehelle', plNom: 'miehet', plGen: 'miesten', plPart: 'miehiä', plIne: 'miehissä', plEla: 'miehistä' },
+      'susi': { gen: 'suden', part: 'sutta', ine: 'sudessa', ela: 'sudesta', ill: 'suteen', plNom: 'sudet', plGen: 'susien', plPart: 'susia', plIne: 'susissa', plEla: 'susista' },
+      'aika': { gen: 'ajan', part: 'aikaa', ine: 'ajassa', ela: 'ajasta', ill: 'aikaan', plNom: 'ajat', plGen: 'aikojen', plPart: 'aikoja', plIne: 'ajoissa', plEla: 'ajoista' },
+      'päivä': { gen: 'päivän', part: 'päivää', ine: 'päivässä', ela: 'päivästä', ill: 'päivään', ade: 'päivällä', ess: 'päivänä', plNom: 'päivät', plGen: 'päivien', plPart: 'päiviä', plIne: 'päivissä', plEla: 'päivistä' },
+      'vuosi': { gen: 'vuoden', part: 'vuotta', ine: 'vuodessa', ela: 'vuodesta', ill: 'vuoteen', ess: 'vuonna', plNom: 'vuodet', plGen: 'vuosien', plPart: 'vuosia', plIne: 'vuosissa', plEla: 'vuosista' },
+      'viikko': { gen: 'viikon', part: 'viikkoa', ine: 'viikossa', ela: 'viikosta', ill: 'viikkoon', ade: 'viikolla', plNom: 'viikot', plGen: 'viikkojen', plPart: 'viikkoja', plIne: 'viikoissa', plEla: 'viikoista' },
+      'maa': { gen: 'maan', part: 'maata', ine: 'maassa', ela: 'maasta', ill: 'maahan', ade: 'maalla', abl: 'maalta', all: 'maalle', plNom: 'maat', plGen: 'maiden', plPart: 'maita', plIne: 'maissa', plEla: 'maista' },
+      'yö': { gen: 'yön', part: 'yötä', ine: 'yössä', ela: 'yöstä', ill: 'yöhön', ade: 'yöllä', plNom: 'yöt', plGen: 'öiden', plPart: 'öitä', plIne: 'öissä', plEla: 'öistä' },
+      'tie': { gen: 'tien', part: 'tietä', ine: 'tiessä', ela: 'tiestä', ill: 'tiehen', ade: 'tiellä', abl: 'tieltä', all: 'tielle', plNom: 'tiet', plGen: 'teiden', plPart: 'teitä', plIne: 'teissä', plEla: 'teistä' },
+      'kuu': { gen: 'kuun', part: 'kuuta', ine: 'kuussa', ela: 'kuusta', ill: 'kuuhun', plNom: 'kuut', plGen: 'kuiden', plPart: 'kuita', plIne: 'kuissa', plEla: 'kuista' },
+      'pää': { gen: 'pään', part: 'päätä', ine: 'päässä', ela: 'päästä', ill: 'päähän', ade: 'päällä', plNom: 'päät', plGen: 'päiden', plPart: 'päitä', plIne: 'päissä', plEla: 'päistä' },
+      'rakkaus': { gen: 'rakkauden', part: 'rakkautta', ine: 'rakkaudessa', ela: 'rakkaudesta', ill: 'rakkauteen', plNom: 'rakkaudet', plGen: 'rakkauksien' },
+      'totuus': { gen: 'totuuden', part: 'totuutta', ine: 'totuudessa', ela: 'totuudesta', ill: 'totuuteen', plNom: 'totuudet', plGen: 'totuuksien' },
+      'vapaus': { gen: 'vapauden', part: 'vapautta', ine: 'vapaudessa', ela: 'vapaudesta', ill: 'vapauteen', plNom: 'vapaudet', plGen: 'vapauksien' },
+      'kauneus': { gen: 'kauneuden', part: 'kauneutta', ine: 'kauneudessa', ela: 'kauneudesta', ill: 'kauneuteen' },
+      'terveys': { gen: 'terveyden', part: 'terveyttä', ine: 'terveydessä', ela: 'terveydestä', ill: 'terveyteen' },
+      'hallinto': { gen: 'hallinnon', part: 'hallintoa', ine: 'hallinnossa', ela: 'hallinnosta', ill: 'hallintoon', plNom: 'hallinnot', plGen: 'hallintojen' },
+      'hallitus': { gen: 'hallituksen', part: 'hallitusta', ine: 'hallituksessa', ela: 'hallituksesta', ill: 'hallitukseen', plNom: 'hallitukset', plGen: 'hallitusten' },
+      'kaupunki': { gen: 'kaupungin', part: 'kaupunkia', ine: 'kaupungissa', ela: 'kaupungista', ill: 'kaupunkiin', plNom: 'kaupungit', plGen: 'kaupunkien', plEla: 'kaupungeista' },
+      'luonto': { gen: 'luonnon', part: 'luontoa', ine: 'luonnossa', ela: 'luonnosta', ill: 'luontoon' },
+      'musiikki': { gen: 'musiikin', part: 'musiikkia', ine: 'musiikissa', ela: 'musiikista', ill: 'musiikkiin' },
+      'lintu': { gen: 'linnun', part: 'lintua', ine: 'linnussa', ela: 'linnusta', ill: 'lintuun', plNom: 'linnut', plGen: 'lintujen', plPart: 'lintuja', plEla: 'linnuista' },
+      'ranta': { gen: 'rannan', part: 'rantaa', ine: 'rannassa', ela: 'rannasta', ill: 'rantaan', ade: 'rannalla', abl: 'rannalta', all: 'rannalle', plNom: 'rannat', plGen: 'rantojen', plPart: 'rantoja', plEla: 'rannoista' },
+      'koti': { gen: 'kodin', part: 'kotia', ine: 'kodissa', ela: 'kodista', ill: 'kotiin', plNom: 'kodit', plGen: 'kotien', plPart: 'koteja', plEla: 'kodeista' },
+      'pesä': { gen: 'pesän', part: 'pesää', ine: 'pesässä', ela: 'pesästä', ill: 'pesään', plNom: 'pesät', plGen: 'pesien', plPart: 'pesiä', plEla: 'pesistä' },
+      'paikka': { gen: 'paikan', part: 'paikkaa', ine: 'paikassa', ela: 'paikasta', ill: 'paikkaan', ade: 'paikalla', plNom: 'paikat', plGen: 'paikkojen', plEla: 'paikoista' },
+      'kauppa': { gen: 'kaupan', part: 'kauppaa', ine: 'kaupassa', ela: 'kaupasta', ill: 'kauppaan', plNom: 'kaupat', plGen: 'kauppojen', plEla: 'kaupoista' },
+      'ruoka': { gen: 'ruoan', part: 'ruokaa', ine: 'ruoassa', ela: 'ruoasta', ill: 'ruokaan', plNom: 'ruoat', plGen: 'ruokien', plEla: 'ruoista' },
+      'leipä': { gen: 'leivän', part: 'leipää', ine: 'leivässä', ela: 'leivästä', ill: 'leipään', ade: 'leivällä', abl: 'leivältä', all: 'leivälle', plNom: 'leivät', plGen: 'leipien', plPart: 'leipiä', plIne: 'leivissä', plEla: 'leivistä' },
+      'tieto': { gen: 'tiedon', part: 'tietoa', ine: 'tiedossa', ela: 'tiedosta', ill: 'tietoon', plNom: 'tiedot', plGen: 'tietojen', plEla: 'tiedoista' },
+      'tiedote': { gen: 'tiedotteen', part: 'tiedotetta', ine: 'tiedotteessa', ela: 'tiedotteesta', ill: 'tiedotteeseen', plNom: 'tiedotteet', plGen: 'tiedotteiden', plEla: 'tiedotteista' },
+      'kirja': { gen: 'kirjan', part: 'kirjaa', ine: 'kirjassa', ela: 'kirjasta', ill: 'kirjaan', plNom: 'kirjat', plGen: 'kirjojen', plPart: 'kirjoja', plEla: 'kirjoista' },
+      'sana': { gen: 'sanan', part: 'sanaa', ine: 'sanassa', ela: 'sanasta', ill: 'sanaan', plNom: 'sanat', plGen: 'sanojen', plPart: 'sanoja', plEla: 'sanoista' },
+      'ystävä': { gen: 'ystävän', part: 'ystävää', ine: 'ystävässä', ela: 'ystävästä', ill: 'ystävään', ade: 'ystävällä', abl: 'ystävältä', all: 'ystävälle', plNom: 'ystävät', plGen: 'ystävien', plPart: 'ystäviä', plIne: 'ystävissä', plEla: 'ystävistä', plAll: 'ystäville' },
+      'koulu': { gen: 'koulun', part: 'koulua', ine: 'koulussa', ela: 'koulusta', ill: 'kouluun', plNom: 'koulut', plGen: 'koulujen', plEla: 'kouluista' },
+      'yliopisto': { gen: 'yliopiston', part: 'yliopistoa', ine: 'yliopistossa', ela: 'yliopistosta', ill: 'yliopistoon', plNom: 'yliopistot', plGen: 'yliopistojen' },
+      'luettelo': { gen: 'luettelon', part: 'luetteloa', ine: 'luettelossa', ela: 'luettelosta', ill: 'luetteloon', plNom: 'luettelot', plGen: 'luetteloiden' },
+      'numero': { gen: 'numeron', part: 'numeroa', ine: 'numerossa', ela: 'numerosta', ill: 'numeroon', plNom: 'numerot', plGen: 'numeroiden' },
+      'luku': { gen: 'luvun', part: 'lukua', ine: 'luvussa', ela: 'luvusta', ill: 'lukuun', plNom: 'luvut', plGen: 'lukujen', plEla: 'luvuista' },
+      'suomalainen': { gen: 'suomalaisen', part: 'suomalaista', ine: 'suomalaisessa', ela: 'suomalaisesta', ill: 'suomalaiseen', ade: 'suomalaisella', abl: 'suomalaiselta', all: 'suomalaiselle', plNom: 'suomalaiset', plGen: 'suomalaisten', plPart: 'suomalaisia', plIne: 'suomalaisissa', plEla: 'suomalaisista', plAll: 'suomalaisille' },
+      'ihminen': { gen: 'ihmisen', part: 'ihmistä', ine: 'ihmisessä', ela: 'ihmisestä', ill: 'ihmiseen', ade: 'ihmisellä', abl: 'ihmiseltä', all: 'ihmiselle', plNom: 'ihmiset', plGen: 'ihmisten', plPart: 'ihmisiä', plIne: 'ihmisissä', plEla: 'ihmisistä', plAll: 'ihmisille' }
     };
 
     function fiWeakenKPT(stem) {
       const m = stem.match(/^(.*?)([bcdfghjklmnpqrstvwxz]+)([aeiouyäö])$/i);
       if (!m) return stem;
       const [, pre, cons, v] = m;
-      const map = { kk: 'k', pp: 'p', tt: 't', nk: 'ng', nt: 'nn', mp: 'mm', lt: 'll', rt: 'rr' };
+      const map = { kk: 'k', pp: 'p', tt: 't', nk: 'ng', nt: 'nn', mp: 'mm', lt: 'll', rt: 'rr', p: 'v', t: 'd' };
+      // Only apply single p->v / t->d gradation after a vowel (e.g. leipä -> leivä, koti -> kodi)
+      if ((cons === 'p' || cons === 't') && (!pre || !/[aeiouyäö]$/i.test(pre))) return stem;
       if (map[cons]) return pre + map[cons] + v;
       return stem;
     }
 
     function inflectFinnishNoun(base, morph, entry, prevLok = '') {
-      if (!morph || (!morph.plural && !morph.caseType)) return base;
+      if (!morph || (!morph.plural && !morph.caseType && !morph.fiCase)) return base;
       const lower = base.toLowerCase();
       const isCap = base[0] && base[0] === base[0].toUpperCase() && base[0] !== base[0].toLowerCase();
-      const ov = FI_NOUN_OVERRIDES[lower];
       const a = fiHarmony(lower);
 
       function finish(res) {
         return isCap ? res.charAt(0).toUpperCase() + res.slice(1) : res;
       }
 
+      // Determine exact target Finnish case (respecting explicit fiCase from EN/FI prepositions & Lokili verb rection)
+      let fiCase = morph.fiCase || null;
+      if (!fiCase) {
+        if (morph.caseType === 'gen') fiCase = 'gen';
+        else if (morph.caseType === 'ine') fiCase = 'ine';
+        else if (morph.caseType === 'part') {
+          if (prevLok === 'melo' || prevLok === 'toto') fiCase = 'ela';
+          else if ((prevLok === 'anto' || prevLok === 'sano') && (entry?.cat === 'people' || entry?.cat === 'pronouns')) fiCase = 'all';
+          else if ((prevLok === 'leto' || prevLok === 'tulo') && entry?.cat === 'nature') fiCase = 'ill';
+          else if (entry?.cat === 'people') fiCase = 'all';
+          else fiCase = 'part';
+        }
+      }
+
       // Contextual pronoun siäse after pulo ("puhua sillä" = converse in it)
-      if (entry && entry.lokiliLower === 'siä' && morph.caseType === 'ine') {
+      if (entry && entry.lokiliLower === 'siä' && morph.caseType === 'ine' && !morph.fiCase) {
         return prevLok === 'pulo' ? 'sillä' : 'siinä';
       }
 
-      // Check override table first
+      // 1. Exact Finnish pronoun declension (minä, sinä, hän, se, me, te, he, ne, tämä, tuo)
+      const pronKey = lower === 'minua' ? 'minä'
+        : lower === 'sinua' ? 'sinä'
+        : lower === 'häntä' ? 'hän'
+        : lower === 'sitä' ? 'se'
+        : lower === 'meitä' ? 'me'
+        : lower === 'teitä' ? 'te'
+        : lower === 'heitä' ? 'he'
+        : lower === 'niitä' ? 'ne'
+        : lower;
+      if (FI_PRONOUN_DECL[pronKey] && fiCase && FI_PRONOUN_DECL[pronKey][fiCase]) {
+        return finish(FI_PRONOUN_DECL[pronKey][fiCase]);
+      }
+
+      // 2. Check irregular / high-frequency Finnish noun override table
+      const ov = FI_NOUN_OVERRIDES[lower];
       if (ov) {
         if (!morph.plural) {
-          if (morph.caseType === 'gen' && ov.gen) return finish(ov.gen);
-          if (morph.caseType === 'part') {
-            if (entry?.cat === 'people' && ov.all) return finish(ov.all);
-            if (ov.part) return finish(ov.part);
-          }
-          if (morph.caseType === 'ine' && (ov.langTra || ov.ine)) return finish(ov.langTra || ov.ine);
+          if (fiCase === 'ine' && ov.langTra) return finish(ov.langTra);
+          if (fiCase && ov[fiCase]) return finish(ov[fiCase]);
         } else {
-          if (!morph.caseType && ov.plNom) return finish(ov.plNom);
-          if (morph.caseType === 'gen' && ov.plGen) return finish(ov.plGen);
-          if (morph.caseType === 'part' && ov.plPart) return finish(ov.plPart);
-          if (morph.caseType === 'ine' && ov.plIne) return finish(ov.plIne);
+          if (!fiCase && ov.plNom) return finish(ov.plNom);
+          const plKeyMap = { gen: 'plGen', part: 'plPart', ine: 'plIne', ela: 'plEla', all: 'plAll' };
+          if (fiCase && plKeyMap[fiCase] && ov[plKeyMap[fiCase]]) return finish(ov[plKeyMap[fiCase]]);
         }
       }
 
-      // Multi-word Finnish noun phrases (e.g. "hyvä päivä"): inflect the head word
+      // 3. Multi-word Finnish noun phrases (e.g. "hyvä päivä"): inflect the head word
       if (lower.includes(' ')) {
         const words = base.split(' ');
         const last = words.pop();
-        return [...words, inflectFinnishNoun(last, morph, entry, prevLok)].join(' ');
+        return [...words, inflectFinnishNoun(last, { ...morph, fiCase }, entry, prevLok)].join(' ');
       }
 
-      // -nen nouns (suomalainen, nainen, ihminen, uutinen)
+      // 4. -nen nouns (suomalainen, nainen, ihminen, uutinen)
       if (lower.endsWith('nen') && lower.length > 4) {
         const root = base.slice(0, -3);
         if (!morph.plural) {
-          if (morph.caseType === 'gen') return root + 'sen';
-          if (morph.caseType === 'part') return entry?.cat === 'people' ? root + 'selle' : root + 'st' + a;
-          if (morph.caseType === 'ine') return root + 'sess' + a;
+          if (fiCase === 'gen') return root + 'sen';
+          if (fiCase === 'part') return root + 'st' + a;
+          if (fiCase === 'ela') return root + 'sest' + a;
+          if (fiCase === 'ine') return root + 'sess' + a;
+          if (fiCase === 'ill') return root + 'seen';
+          if (fiCase === 'ade') return root + 'sell' + a;
+          if (fiCase === 'abl') return root + 'selt' + a;
+          if (fiCase === 'all') return root + 'selle';
+          if (fiCase === 'ess') return root + 'sen' + a;
         } else {
-          if (!morph.caseType) return root + 'set';
-          if (morph.caseType === 'gen') return root + 'sten';
-          if (morph.caseType === 'part') return entry?.cat === 'people' ? root + 'sille' : root + 'si' + a;
-          if (morph.caseType === 'ine') return root + 'siss' + a;
+          if (!fiCase) return root + 'set';
+          if (fiCase === 'gen') return root + 'sten';
+          if (fiCase === 'part') return root + 'si' + a;
+          if (fiCase === 'ela') return root + 'sist' + a;
+          if (fiCase === 'ine') return root + 'siss' + a;
+          if (fiCase === 'ill') return root + 'siin';
+          if (fiCase === 'ade') return root + 'sill' + a;
+          if (fiCase === 'abl') return root + 'silt' + a;
+          if (fiCase === 'all') return root + 'sille';
         }
       }
 
-      // -us/-ys/-os/-es nouns (kirjoitus, kysymys, muutos)
+      // 5. -us/-ys/-os/-es nouns (kirjoitus, kysymys, muutos)
       if (/(us|ys|os|ös|es)$/.test(lower) && lower.length > 4) {
         const root = base.slice(0, -1);
         if (!morph.plural) {
-          if (morph.caseType === 'gen') return root + 'ksen';
-          if (morph.caseType === 'part') return base + 't' + a;
-          if (morph.caseType === 'ine') return root + 'ksess' + a;
+          if (fiCase === 'gen') return root + 'ksen';
+          if (fiCase === 'part') return base + 't' + a;
+          if (fiCase === 'ela') return root + 'ksest' + a;
+          if (fiCase === 'ine') return root + 'ksess' + a;
+          if (fiCase === 'ill') return root + 'kseen';
+          if (fiCase === 'ade') return root + 'ksell' + a;
+          if (fiCase === 'abl') return root + 'kselt' + a;
+          if (fiCase === 'all') return root + 'kselle';
         } else {
-          if (!morph.caseType) return root + 'kset';
-          if (morph.caseType === 'gen') return root + 'sten';
-          if (morph.caseType === 'part') return root + 'ksi' + a;
-          if (morph.caseType === 'ine') return root + 'ksiss' + a;
+          if (!fiCase) return root + 'kset';
+          if (fiCase === 'gen') return root + 'sten';
+          if (fiCase === 'part') return root + 'ksi' + a;
+          if (fiCase === 'ela') return root + 'ksist' + a;
+          if (fiCase === 'ine') return root + 'ksiss' + a;
+          if (fiCase === 'all') return root + 'ksille';
         }
       }
 
-      // General vowel-final Finnish noun rules
+      // 6. General vowel-final Finnish noun rules
       if (/[aeiouyäö]$/.test(lower)) {
         const weak = fiWeakenKPT(base);
+        const lastV = lower.slice(-1);
         if (!morph.plural) {
-          if (morph.caseType === 'gen') return weak + 'n';
-          if (morph.caseType === 'part') return entry?.cat === 'people' ? weak + 'lle' : base + a;
-          if (morph.caseType === 'ine') return weak + 'ss' + a;
+          if (fiCase === 'gen') return weak + 'n';
+          if (fiCase === 'part') return base + a;
+          if (fiCase === 'ela') return weak + 'st' + a;
+          if (fiCase === 'ine') return weak + 'ss' + a;
+          if (fiCase === 'ill') return base + lastV + 'n';
+          if (fiCase === 'ade') return weak + 'll' + a;
+          if (fiCase === 'abl') return weak + 'lt' + a;
+          if (fiCase === 'all') return weak + 'lle';
+          if (fiCase === 'ess') return base + 'n' + a;
         } else {
-          if (!morph.caseType) return weak + 't';
-          if (morph.caseType === 'gen') {
+          if (!fiCase) return weak + 't';
+          const plStem = (lower.endsWith('a') || lower.endsWith('ä'))
+            ? weak.slice(0, -1) + (a === 'a' ? 'oi' : 'i')
+            : weak + 'i';
+          if (fiCase === 'gen') {
             if (lower.endsWith('a') || lower.endsWith('ä')) return base.slice(0, -1) + (a === 'a' ? 'ojen' : 'ien');
             return base + 'jen';
           }
-          if (morph.caseType === 'part') {
+          if (fiCase === 'part') {
             if (lower.endsWith('a') || lower.endsWith('ä')) return base.slice(0, -1) + (a === 'a' ? 'oja' : 'iä');
             return base + 'j' + a;
           }
-          if (morph.caseType === 'ine') {
-            if (lower.endsWith('a') || lower.endsWith('ä')) return weak.slice(0, -1) + (a === 'a' ? 'oissa' : 'issä');
-            return weak + 'iss' + a;
-          }
+          if (fiCase === 'ela') return plStem + 'st' + a;
+          if (fiCase === 'ine') return plStem + 'ss' + a;
+          if (fiCase === 'ill') return plStem + 'hin';
+          if (fiCase === 'ade') return plStem + 'll' + a;
+          if (fiCase === 'abl') return plStem + 'lt' + a;
+          if (fiCase === 'all') return plStem + 'lle';
         }
       }
       return base;
@@ -2711,14 +2837,52 @@
       family: 'families', party: 'parties', dictionary: 'dictionaries', enemy: 'enemies'
     };
 
-    function inflectEnglishNoun(base, morph, entry) {
+    // Lokili verbs whose English equivalents take a direct object without "about" (even when Finnish uses elative -sta/-stä)
+    const EN_DIRECT_OBJ_VERBS = new Set(['melo', 'lako', 'viho', 'nako', 'halo', 'sumo', 'juvo', 'poso', 'vuso', 'tuho', 'teto', 'tano', 'lohko', 'teko', 'kito', 'avo', 'usko']);
+    const EN_PRONOUN_OBJ = {
+      miä: 'me', mine: 'me', minu: 'me',
+      tiä: 'you', tine: 'you', tinu: 'you',
+      siä: 'him', sine: 'him', sinu: 'him',
+      mii: 'us', miite: 'us', miitu: 'us',
+      tii: 'you', tiite: 'you', tiitu: 'you',
+      sii: 'them', siite: 'them', siitu: 'them'
+    };
+
+    function inflectEnglishNoun(base, morph, entry, prevLok = '') {
       let w = base.replace(/^the\s+/i, '');
-      if (!morph || (!morph.plural && !morph.caseType)) return w;
+      const lok = entry?.lokiliLower || '';
+      const isPron = entry?.cat === 'pronouns';
+
+      // Handle English pronoun case realizations cleanly (in me, about you, about it, to us...)
+      if (isPron) {
+        const objForm = morph?.inanimate
+          ? (lok.startsWith('sii') ? 'them' : 'it')
+          : (EN_PRONOUN_OBJ[lok] || w.toLowerCase());
+        const fiCase = morph?.fiCase || null;
+
+        if (morph?.caseType === 'ine') {
+          if (fiCase === 'ade') return `on ${objForm}`;
+          return `in ${lok === 'siä' || morph?.inanimate ? 'it' : objForm}`;
+        }
+        if (fiCase === 'ela') {
+          if (EN_DIRECT_OBJ_VERBS.has(prevLok)) return objForm;
+          return `about ${objForm}`;
+        }
+        if (fiCase === 'abl') return `from ${objForm}`;
+        if (fiCase === 'ill') return `into ${objForm}`;
+        if (fiCase === 'all') return `to ${objForm}`;
+        if (fiCase === 'acc' || fiCase === 'part') return objForm;
+        if (morph?.caseType === 'part') {
+          if (prevLok === 'anto' || prevLok === 'sano') return `to ${objForm}`;
+          if (EN_DIRECT_OBJ_VERBS.has(prevLok)) return objForm;
+          return objForm;
+        }
+        return w;
+      }
+
+      if (!morph || (!morph.plural && !morph.caseType && !morph.fiCase)) return w;
 
       const lower = w.toLowerCase();
-
-      // Special case: pronoun siä -> siäse ("in it")
-      if (entry && entry.lokiliLower === 'siä' && morph.caseType === 'ine') return 'in it';
 
       // Pluralize
       if (morph.plural) {
@@ -2733,6 +2897,8 @@
         }
       }
 
+      const fiCase = morph.fiCase || null;
+
       // Case realization
       if (morph.caseType === 'gen') {
         return w.endsWith('s') ? `${w}'` : `${w}'s`;
@@ -2741,10 +2907,24 @@
         if (entry && entry.cat === 'language' && /\blanguage$/i.test(w)) {
           return 'in ' + w.replace(/\s+language$/i, '');
         }
+        if (fiCase === 'ade') return `on ${w}`;
+        if (fiCase === 'ess') return `as ${w}`;
         return `in ${w}`;
       }
-      if (morph.caseType === 'part') {
+      if (morph.caseType === 'part' || fiCase) {
+        if (fiCase === 'ela') {
+          if (EN_DIRECT_OBJ_VERBS.has(prevLok)) return w;
+          // Geographic places & countries naturally use "from" (e.g. Suomesta -> from Finland), other nouns use "about" (leivästä -> about bread)
+          if (entry && entry.cat === 'nature' && (/^[A-Z]/.test(entry.lokili) || ['linu', 'külu', 'savi', 'pesi', 'lanti'].includes(lok))) {
+            return `from ${w}`;
+          }
+          return `about ${w}`;
+        }
+        if (fiCase === 'abl') return `from ${w}`;
+        if (fiCase === 'ill') return `to ${w}`;
+        if (fiCase === 'all') return `to ${w}`;
         if (entry && (entry.cat === 'people' || (entry.cat === 'nature' && /^[A-Z]/.test(entry.lokili)))) {
+          if (EN_DIRECT_OBJ_VERBS.has(prevLok)) return w;
           return `to ${w}`;
         }
         if (entry && entry.cat === 'language' && /\blanguage$/i.test(w)) {
@@ -2786,10 +2966,15 @@
     function applyLokiliInflection(entry, morph, prevWasQuantifier) {
       if (!entry) return '';
       const base = entry.lokili;
-      if (!morph || entry.cat === 'pronouns') {
-        if (morph && morph.caseType === 'ine' && !base.endsWith('se')) return base + 'se';
+      if (entry.cat === 'pronouns') {
+        const para = LOKILI_PRONOUN_PARADIGM[entry.lokiliLower];
+        if (!para || !morph) return base;
+        if (morph.caseType === 'ine') return para.ine;
+        if (morph.caseType === 'gen') return para.gen;
+        if (morph.caseType === 'part') return para.part;
         return base;
       }
+      if (!morph) return base;
       const infl = inflectLokiliWord(base);
       if (!infl || infl.isVerb) return base;
 
@@ -2938,8 +3123,8 @@
       'reads': 'to read', 'counts': 'to count', 'adds': 'to add', 'learns': 'to learn', 'teaches': 'to teach', 'taught': 'to teach', 'wins': 'to win', 'won': 'to win'
     };
 
-    const EN_STOP_WORDS = new Set(['the', 'a', 'an', 'of', 'in', 'into', 'to', 'on', 'at', 'by', 'for', 'from', 'with', 'without', 'than', 'more', 'most', 'very', 'really', 'not', 'do', 'does', 'did', "don't", "doesn't", "don’t", "doesn’t", "isn't", "aren't", "isn’t", "aren’t", "i'm", "i’m", 'am', 'is', 'are', 'was', 'were', 'this', 'that', 'these', 'those', 'i', 'you', 'he', 'she', 'it', 'we', 'they', 'my', 'your', 'his', 'her', 'our', 'their', 'and', 'but', 'or']);
-    const FI_STRONG_WORDS = new Set(['olen', 'olet', 'on', 'olemme', 'olette', 'ovat', 'en', 'et', 'ei', 'emme', 'ette', 'eivät', 'minä', 'sinä', 'hän', 'me', 'te', 'he', 'minun', 'sinun', 'hänen', 'meidän', 'teidän', 'heidän', 'minua', 'sinua', 'häntä', 'meitä', 'teitä', 'heitä', 'ja', 'mutta', 'tai', 'vai', 'kuin', 'että', 'kaikkein', 'mitä', 'mikä', 'kuka', 'missä', 'milloin', 'miksi', 'tuo', 'tämä', 'sekä', 'myös', 'hyvin', 'todella', 'suomi', 'suomen', 'suomessa', 'suomea', 'suomeksi', 'lokilin', 'kieltä', 'sillä']);
+    const EN_STOP_WORDS = new Set(['the', 'a', 'an', 'of', 'in', 'into', 'inside', 'to', 'on', 'at', 'by', 'for', 'from', 'about', 'as', 'with', 'without', 'than', 'more', 'most', 'very', 'really', 'not', 'do', 'does', 'did', "don't", "doesn't", "don’t", "doesn’t", "isn't", "aren't", "isn’t", "aren’t", "i'm", "i’m", 'am', 'is', 'are', 'was', 'were', 'this', 'that', 'these', 'those', 'i', 'me', 'you', 'he', 'him', 'she', 'her', 'it', 'we', 'us', 'they', 'them', 'my', 'your', 'his', 'its', 'our', 'their', 'and', 'but', 'or']);
+    const FI_STRONG_WORDS = new Set(['olen', 'olet', 'on', 'olemme', 'olette', 'ovat', 'en', 'et', 'ei', 'emme', 'ette', 'eivät', 'minä', 'sinä', 'hän', 'me', 'te', 'he', 'minun', 'sinun', 'hänen', 'meidän', 'teidän', 'heidän', 'minua', 'sinua', 'häntä', 'meitä', 'teitä', 'heitä', 'minusta', 'sinusta', 'hänestä', 'siitä', 'meistä', 'teistä', 'heistä', 'niistä', 'minussa', 'sinussa', 'hänessä', 'siinä', 'meissä', 'teissä', 'heissä', 'niissä', 'minulle', 'sinulle', 'hänelle', 'sille', 'meille', 'teille', 'heille', 'niille', 'minulla', 'sinulla', 'hänellä', 'sillä', 'meillä', 'teillä', 'heillä', 'niillä', 'minulta', 'sinulta', 'häneltä', 'siltä', 'meiltä', 'teiltä', 'heiltä', 'niiltä', 'minuun', 'sinuun', 'häneen', 'siihen', 'meihin', 'teihin', 'heihin', 'niihin', 'minut', 'sinut', 'hänet', 'meidät', 'teidät', 'heidät', 'tästä', 'tähän', 'tällä', 'tältä', 'tälle', 'tätä', 'tämän', 'tuosta', 'tuohon', 'tuolta', 'tuolle', 'tuota', 'tuon', 'ja', 'mutta', 'tai', 'vai', 'kuin', 'että', 'kaikkein', 'mitä', 'mikä', 'kuka', 'missä', 'milloin', 'miksi', 'tuo', 'tämä', 'sekä', 'myös', 'hyvin', 'todella', 'suomi', 'suomen', 'suomessa', 'suomesta', 'suomeen', 'suomea', 'suomeksi', 'lokilin', 'kieltä', 'kielestä']);
     const LOKILI_SHARED_FI_WORDS = new Set(['tämä', 'joka', 'kiva', 'kivi', 'savi', 'joki', 'susi', 'lumi', 'vesi', 'kali', 'sami', 'lahti', 'luku', 'sano', 'kalo', 'kulu', 'kasa', 'tuli', 'sopa', 'vaka', 'vaku', 'viha', 'haku', 'kako', 'puno', 'ala', 'osa', 'pala']);
 
     // Build reverse lookup maps for Finnish & English comparative/superlative adjectives
@@ -2957,43 +3142,62 @@
     }
 
     /**
-     * Find best lexicon match for a Finnish or English word/phrase
+     * Find a lexicon entry matching a Finnish or English word/phrase.
+     * Supports exact gloss matching (handling optional parenthetical notes and English "to " verb prefixes)
+     * plus optional loose whole-word fallback.
      */
-    function findByTranslation(query, lang, strictExact = false) {
-      const q = query.toLowerCase().replace(/[.,!?;:"”„()—–]/g, '').trim();
+    function findByTranslation(query, lang, exactOnly = false) {
+      const q = (query || '').toLowerCase().trim();
       if (!q) return null;
+      const isEn = lang === 'en';
+      const field = isEn ? 'enLower' : 'fiLower';
+      const qNoTo = isEn ? q.replace(/^to\s+/, '') : q;
 
-      let best = null;
-      let bestScore = -1;
-      const qNoTo = q.replace(/^to\s+/, '');
-      // Prevent short English articles/prepositions from matching unrelated multi-word glosses in loose mode
-      const allowLoose = !strictExact && !(lang === 'en' && qNoTo.length <= 3 && EN_STOP_WORDS.has(qNoTo));
+      let bestMatch = null;
+      let bestScore = Infinity;
 
       for (const item of LEXICON) {
-        const text = lang === 'fi' ? item.fiLower : item.enLower;
-        const senses = text.split(',').map(s => s.replace(/\s*\([^)]*\)/g, '').trim().replace(/^to\s+/, ''));
+        const rawParts = item[field].split(',').map(p => p.trim()).filter(Boolean);
+        for (let idx = 0; idx < rawParts.length; idx++) {
+          const rawP = rawParts[idx];
+          const cleanP = rawP.replace(/\s*\([^)]*\)/g, '').trim();
+          const cleanNoTo = isEn ? cleanP.replace(/^to\s+/, '') : cleanP;
 
-        for (let i = 0; i < senses.length; i++) {
-          const s = senses[i];
-          let score = -1;
-          if (s === qNoTo || s === q) {
-            score = 100 - i;
-          } else if (allowLoose && (s.startsWith(qNoTo + ' ') || s.startsWith(q + ' '))) {
-            score = 80 - i;
-          } else if (allowLoose && qNoTo.length >= 4 && s.includes(qNoTo)) {
-            score = 50 - i;
-          }
-          if (score > bestScore) {
-            bestScore = score;
-            best = item;
+          if (rawP === q) {
+            const score = idx === 0 ? -1 : 0.2 + idx * 0.1;
+            if (score < bestScore) {
+              bestScore = score;
+              bestMatch = item;
+            }
+          } else if (cleanP === q) {
+            const score = idx === 0 ? 0 : 1 + idx * 0.1;
+            if (score < bestScore) {
+              bestScore = score;
+              bestMatch = item;
+            }
+          } else if (isEn && cleanNoTo === qNoTo && qNoTo.length > 0) {
+            const score = idx === 0 ? 0.5 : 1.5 + idx * 0.1;
+            if (score < bestScore) {
+              bestScore = score;
+              bestMatch = item;
+            }
           }
         }
       }
-      return bestScore >= (strictExact ? 90 : 50) ? best : null;
+
+      if (bestMatch) return bestMatch;
+      if (exactOnly) return null;
+
+      const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const wordRe = new RegExp(`(?:^|[\\s,(/-])${escaped}(?:$|[\\s,)/-])`, 'i');
+      for (const item of LEXICON) {
+        if (wordRe.test(item[field])) return item;
+      }
+      return null;
     }
 
     /**
-     * Analyze an inflected Finnish word (cases, plurals, verbs, comparatives, superlatives)
+     * Analyze an inflected Finnish word (cases, plurals, pronouns, verbs, comparatives, superlatives)
      */
     function analyzeFinnishToken(rawToken) {
       const punc = splitPunctuation(rawToken);
@@ -3007,11 +3211,24 @@
         if (hit) return { token: rawToken, ...punc, entry: hit, morph: { plural: false, caseType: null }, compRole: info.role };
       }
 
-      // 2. Direct exact lexicon match
+      // 2. Check inflected Finnish pronouns (sinusta, minusta, siitä, hänestä, meistä, sinussa, siinä, sillä, sinuun, tästä, tuosta...)
+      if (FI_PRONOUN_FORMS[clean]) {
+        const pf = FI_PRONOUN_FORMS[clean];
+        const pronEntry = LEXICON.find(x => x.lokiliLower === pf.lokKey);
+        if (pronEntry) {
+          return {
+            token: rawToken, ...punc,
+            entry: pronEntry,
+            morph: { plural: false, caseType: pf.caseType, fiCase: pf.fiCase, inanimate: pf.inanimate }
+          };
+        }
+      }
+
+      // 3. Direct exact lexicon match
       let hit = findByTranslation(clean, 'fi', true);
       if (hit) return { token: rawToken, ...punc, entry: hit, morph: { plural: false, caseType: null } };
 
-      // 3. Check common conjugated Finnish verbs & negative auxiliaries
+      // 4. Check common conjugated Finnish verbs & negative auxiliaries
       if (FI_COMMON_FORMS[clean]) {
         const vInfo = FI_COMMON_FORMS[clean];
         hit = findByTranslation(vInfo.lemma, 'fi', true);
@@ -3025,38 +3242,66 @@
         }
       }
 
-      // 4. Check override noun forms (e.g. lokin -> lokki + gen, Suomessa -> Suomi + ine, suomalaisten -> soma + PL + GEN)
-      if (clean === 'sillä') {
-        const siaEntry = LEXICON.find(x => x.lokiliLower === 'siä');
-        if (siaEntry) return { token: rawToken, ...punc, entry: siaEntry, morph: { plural: false, caseType: 'ine' } };
-      }
+      // 5. Check override noun forms (e.g. lokin, Suomessa, Suomesta, Suomeen, leivästä, suomalaisten, vedestä...)
       for (const [lemma, forms] of Object.entries(FI_NOUN_OVERRIDES)) {
         const mapCheck = [
-          ['gen', false, 'gen'], ['part', false, 'part'], ['ine', false, 'ine'], ['langTra', false, 'ine'], ['all', false, 'part'],
-          ['plNom', true, null], ['plGen', true, 'gen'], ['plPart', true, 'part'], ['plIne', true, 'ine']
+          ['gen', false, 'gen', 'gen'],
+          ['part', false, 'part', 'part'],
+          ['ela', false, 'part', 'ela'],
+          ['ill', false, 'part', 'ill'],
+          ['abl', false, 'part', 'abl'],
+          ['all', false, 'part', 'all'],
+          ['ine', false, 'ine', 'ine'],
+          ['ade', false, 'ine', 'ade'],
+          ['ess', false, 'ine', 'ess'],
+          ['langTra', false, 'ine', 'ine'],
+          ['plNom', true, null, null],
+          ['plGen', true, 'gen', 'gen'],
+          ['plPart', true, 'part', 'part'],
+          ['plIne', true, 'ine', 'ine'],
+          ['plEla', true, 'part', 'ela'],
+          ['plAll', true, 'part', 'all']
         ];
-        for (const [k, plural, caseType] of mapCheck) {
+        for (const [k, plural, caseType, fiCase] of mapCheck) {
           if (forms[k] && forms[k].toLowerCase() === clean) {
             hit = findByTranslation(lemma, 'fi', true);
-            if (hit) return { token: rawToken, ...punc, entry: hit, morph: { plural, caseType } };
+            if (hit) return { token: rawToken, ...punc, entry: hit, morph: { plural, caseType, fiCase } };
           }
         }
       }
 
+      // Reverse consonant gradation & Finnish stem alternations (kk/k, pp/p, tt/t, p/v, t/d, nk/ng, nt/nn, mp/mm, lt/ll, rt/rr, e/i, de/si, ude/us, kse/s...)
+      const FI_STEM_EXCEPTIONS = {
+        'ruoa': 'ruoka', 'aja': 'aika', 'poja': 'poika', 'luvu': 'luku',
+        'sydäme': 'sydän', 'miehe': 'mies', 'lahde': 'lahti', 'käde': 'käsi'
+      };
+
       function expandKPT(stem) {
-        const cands = [stem];
+        const set = new Set([stem]);
+        if (FI_STEM_EXCEPTIONS[stem]) set.add(FI_STEM_EXCEPTIONS[stem]);
         const rev = [
           [/k([aeiouyäö])$/, 'kk$1'], [/p([aeiouyäö])$/, 'pp$1'], [/t([aeiouyäö])$/, 'tt$1'],
+          [/v([aeiouyäö])$/, 'p$1'],  [/d([aeiouyäö])$/, 't$1'],
           [/ng([aeiouyäö])$/, 'nk$1'], [/nn([aeiouyäö])$/, 'nt$1'], [/mm([aeiouyäö])$/, 'mp$1'],
-          [/ll([aeiouyäö])$/, 'lt$1'], [/rr([aeiouyäö])$/, 'rt$1'], [/d([aeiouyäö])$/, 't$1']
+          [/ll([aeiouyäö])$/, 'lt$1'], [/rr([aeiouyäö])$/, 'rt$1'],
+          [/hde$/, 'hti'], [/de$/, 'si'], [/te$/, 'si'],
+          [/ude$/, 'us'], [/yde$/, 'ys'], [/kse$/, 's'],
+          [/he$/, 's'], [/me$/, 'n'], [/e$/, 'i']
         ];
         for (const [re, rep] of rev) {
-          if (re.test(stem)) cands.push(stem.replace(re, rep));
+          if (re.test(stem)) set.add(stem.replace(re, rep));
         }
-        return cands;
+        // Two-step expansion (e.g. "kive" -> "kivi", or "leiv" + "ä" -> "leivä" -> "leipä")
+        const snapshot = [...set];
+        for (const s of snapshot) {
+          if (s.endsWith('e') && s.length > 2) set.add(s.slice(0, -1) + 'i');
+          if (/v[aeiouyäö]$/.test(s)) set.add(s.replace(/v([aeiouyäö])$/, 'p$1'));
+          if (/d[aeiouyäö]$/.test(s)) set.add(s.replace(/d([aeiouyäö])$/, 't$1'));
+        }
+        return [...set];
       }
 
-      // 4b. General Finnish finite verb reverse-stemming (-n, -t, -mme, -tte, -vat/-vät)
+      // 5b. General Finnish finite verb reverse-stemming (-n, -t, -mme, -tte, -vat/-vät)
       const fiVerbEndings = [
         { re: /mme$/, person: '1pl' },
         { re: /tte$/, person: '2pl' },
@@ -3085,24 +3330,91 @@
         }
       }
 
-      // 5. Reverse-strip common Finnish case/plural suffixes
+      // 6. Reverse-strip ALL standard Finnish case & plural suffixes
+      // Order: -nen specific forms -> singular local/directional cases (so -i- stems like kodista/kahvista stay singular) -> plural local/directional cases -> genitive/plural/partitive
       const fiSuffixRules = [
-        { re: /siss[aä]$/, rep: ['nen'], plural: true, caseType: 'ine' },
-        { re: /sess[aä]$/, rep: ['nen'], plural: false, caseType: 'ine' },
-        { re: /sten$/, rep: ['nen'], plural: true, caseType: 'gen' },
-        { re: /sen$/, rep: ['nen'], plural: false, caseType: 'gen' },
-        { re: /set$/, rep: ['nen'], plural: true, caseType: null },
-        { re: /st[aä]$/, rep: ['nen'], plural: false, caseType: 'part' },
-        { re: /selle$/, rep: ['nen'], plural: false, caseType: 'part' },
-        { re: /iss[aä]$/, rep: ['', 'a', 'ä', 'i'], plural: true, caseType: 'ine' },
-        { re: /ss[aä]$/, rep: ['', 'i'], plural: false, caseType: 'ine' },
-        { re: /ksi$/, rep: ['', 'i'], plural: false, caseType: 'ine' },
-        { re: /lle$/, rep: ['', 'i'], plural: false, caseType: 'part' },
-        { re: /ien$|jen$|ojen$|öjen$/, rep: ['', 'a', 'ä', 'i'], plural: true, caseType: 'gen' },
-        { re: /n$/, rep: ['', 'i'], plural: false, caseType: 'gen' },
-        { re: /t$/, rep: ['', 'i'], plural: true, caseType: null },
-        { re: /[aä]$/, rep: ['', 'i'], plural: false, caseType: 'part' }
+        // -nen nouns (suomalainen, ihminen, nainen...)
+        { re: /siss[aä]$/, rep: ['nen'], plural: true,  caseType: 'ine',  fiCase: 'ine' },
+        { re: /sess[aä]$/, rep: ['nen'], plural: false, caseType: 'ine',  fiCase: 'ine' },
+        { re: /sist[aä]$/, rep: ['nen'], plural: true,  caseType: 'part', fiCase: 'ela' },
+        { re: /sest[aä]$/, rep: ['nen'], plural: false, caseType: 'part', fiCase: 'ela' },
+        { re: /sill[aä]$/, rep: ['nen'], plural: true,  caseType: 'ine',  fiCase: 'ade' },
+        { re: /sell[aä]$/, rep: ['nen'], plural: false, caseType: 'ine',  fiCase: 'ade' },
+        { re: /silt[aä]$/, rep: ['nen'], plural: true,  caseType: 'part', fiCase: 'abl' },
+        { re: /selt[aä]$/, rep: ['nen'], plural: false, caseType: 'part', fiCase: 'abl' },
+        { re: /sille$/,    rep: ['nen'], plural: true,  caseType: 'part', fiCase: 'all' },
+        { re: /selle$/,    rep: ['nen'], plural: false, caseType: 'part', fiCase: 'all' },
+        { re: /siin$/,     rep: ['nen'], plural: true,  caseType: 'part', fiCase: 'ill' },
+        { re: /seen$/,     rep: ['nen'], plural: false, caseType: 'part', fiCase: 'ill' },
+        { re: /siksi$/,    rep: ['nen'], plural: true,  caseType: 'ine',  fiCase: 'ine' },
+        { re: /seksi$/,    rep: ['nen'], plural: false, caseType: 'ine',  fiCase: 'ine' },
+        { re: /sten$/,     rep: ['nen'], plural: true,  caseType: 'gen',  fiCase: 'gen' },
+        { re: /sen$/,      rep: ['nen'], plural: false, caseType: 'gen',  fiCase: 'gen' },
+        { re: /set$/,      rep: ['nen'], plural: true,  caseType: null,   fiCase: null  },
+        { re: /si[aä]$/,   rep: ['nen'], plural: true,  caseType: 'part', fiCase: 'part' },
+        { re: /st[aä]$/,   rep: ['nen'], plural: false, caseType: 'part', fiCase: 'part' },
+
+        // Singular local, elative, ablative, allative, translative, essive cases (checked BEFORE plural -i- to preserve -i- nouns!)
+        { re: /ss[aä]$/,   rep: ['', 'i'], plural: false, caseType: 'ine',  fiCase: 'ine' },
+        { re: /st[aä]$/,   rep: ['', 'i'], plural: false, caseType: 'part', fiCase: 'ela' },
+        { re: /ll[aä]$/,   rep: ['', 'i'], plural: false, caseType: 'ine',  fiCase: 'ade' },
+        { re: /lt[aä]$/,   rep: ['', 'i'], plural: false, caseType: 'part', fiCase: 'abl' },
+        { re: /lle$/,      rep: ['', 'i'], plural: false, caseType: 'part', fiCase: 'all' },
+        { re: /ksi$/,      rep: ['', 'i'], plural: false, caseType: 'ine',  fiCase: 'ine' },
+        { re: /n[aä]$/,    rep: ['', 'i'], plural: false, caseType: 'ine',  fiCase: 'ess' },
+
+        // Plural local, elative, ablative, allative, translative cases
+        { re: /oiss[aä]$|öiss[aä]$/, rep: ['a', 'ä', 'o', 'ö'],       plural: true, caseType: 'ine',  fiCase: 'ine' },
+        { re: /eiss[aä]$/,           rep: ['i', 'e'],                  plural: true, caseType: 'ine',  fiCase: 'ine' },
+        { re: /iss[aä]$/,            rep: ['', 'a', 'ä', 'i', 'e'],    plural: true, caseType: 'ine',  fiCase: 'ine' },
+        { re: /oist[aä]$|öist[aä]$/, rep: ['a', 'ä', 'o', 'ö'],       plural: true, caseType: 'part', fiCase: 'ela' },
+        { re: /eist[aä]$/,           rep: ['i', 'e'],                  plural: true, caseType: 'part', fiCase: 'ela' },
+        { re: /ist[aä]$/,            rep: ['', 'a', 'ä', 'i', 'e'],    plural: true, caseType: 'part', fiCase: 'ela' },
+        { re: /oill[aä]$|öill[aä]$/, rep: ['a', 'ä', 'o', 'ö'],       plural: true, caseType: 'ine',  fiCase: 'ade' },
+        { re: /eill[aä]$/,           rep: ['i', 'e'],                  plural: true, caseType: 'ine',  fiCase: 'ade' },
+        { re: /ill[aä]$/,            rep: ['', 'a', 'ä', 'i', 'e'],    plural: true, caseType: 'ine',  fiCase: 'ade' },
+        { re: /oilt[aä]$|öilt[aä]$/, rep: ['a', 'ä', 'o', 'ö'],       plural: true, caseType: 'part', fiCase: 'abl' },
+        { re: /eilt[aä]$/,           rep: ['i', 'e'],                  plural: true, caseType: 'part', fiCase: 'abl' },
+        { re: /ilt[aä]$/,            rep: ['', 'a', 'ä', 'i', 'e'],    plural: true, caseType: 'part', fiCase: 'abl' },
+        { re: /oille$|öille$/,       rep: ['a', 'ä', 'o', 'ö'],       plural: true, caseType: 'part', fiCase: 'all' },
+        { re: /eille$/,              rep: ['i', 'e'],                  plural: true, caseType: 'part', fiCase: 'all' },
+        { re: /ille$/,               rep: ['', 'a', 'ä', 'i', 'e'],    plural: true, caseType: 'part', fiCase: 'all' },
+        { re: /iksi$/,               rep: ['', 'a', 'ä', 'i', 'e'],    plural: true, caseType: 'ine',  fiCase: 'ine' },
+
+        // Illative singular & plural (-seen, -siin, -hVn, -VVn like Suomeen, kotiin, maahan)
+        { re: /siin$/,               rep: ['', 'e', 'i', 'a', 'ä'],    plural: true,  caseType: 'part', fiCase: 'ill' },
+        { re: /seen$/,               rep: ['', 'e'],                   plural: false, caseType: 'part', fiCase: 'ill' },
+        { re: /ih[aeiouyäö]n$/,      rep: ['', 'a', 'ä', 'i'],         plural: true,  caseType: 'part', fiCase: 'ill' },
+        { re: /h[aeiouyäö]n$/,       rep: [''],                        plural: false, caseType: 'part', fiCase: 'ill' },
+
+        // Plural genitive & plural partitive
+        { re: /iden$|itten$/,        rep: ['', 'a', 'ä', 'e', 'i'],    plural: true, caseType: 'gen',  fiCase: 'gen' },
+        { re: /ojen$|öjen$/,         rep: ['a', 'ä', 'o', 'ö'],        plural: true, caseType: 'gen',  fiCase: 'gen' },
+        { re: /ien$|jen$|ten$/,      rep: ['', 'a', 'ä', 'i', 'e'],    plural: true, caseType: 'gen',  fiCase: 'gen' },
+        { re: /oj[aä]$|öj[aä]$/,     rep: ['a', 'ä', 'o', 'ö'],        plural: true, caseType: 'part', fiCase: 'part' },
+        { re: /ej[aä]$/,             rep: ['i', 'e'],                  plural: true, caseType: 'part', fiCase: 'part' },
+        { re: /it[aä]$/,             rep: ['', 'a', 'ä', 'i', 'e'],    plural: true, caseType: 'part', fiCase: 'part' },
+        { re: /j[aä]$|i[aä]$/,       rep: ['', 'a', 'ä', 'i', 'e'],    plural: true, caseType: 'part', fiCase: 'part' },
+
+        // Singular partitive -tta/-ttä, -ta/-tä, -a/-ä, genitive -n, nominative plural -t
+        { re: /tt[aä]$/,             rep: ['', 's', 'i', 'e'],         plural: false, caseType: 'part', fiCase: 'part' },
+        { re: /t[aä]$/,              rep: ['', 'i', 'e', 'n', 's'],    plural: false, caseType: 'part', fiCase: 'part' },
+        { re: /n$/,                  rep: ['', 'i'],                   plural: false, caseType: 'gen',  fiCase: 'gen' },
+        { re: /t$/,                  rep: ['', 'i'],                   plural: true,  caseType: null,   fiCase: null  },
+        { re: /[aä]$/,               rep: ['', 'i'],                   plural: false, caseType: 'part', fiCase: 'part' }
       ];
+
+      // Special check for vowel-doubling singular illative (-aan, -ään, -een, -iin, -oon, -uun, -yyn, -öön)
+      const illMatch = clean.match(/^(.+?)([aeiouyäö])\2n$/);
+      if (illMatch && clean.length > 4) {
+        const illStem = illMatch[1] + illMatch[2];
+        for (const cand of expandKPT(illStem)) {
+          const match = findByTranslation(cand, 'fi', true);
+          if (match) {
+            return { token: rawToken, ...punc, entry: match, morph: { plural: false, caseType: 'part', fiCase: 'ill' } };
+          }
+        }
+      }
 
       for (const rule of fiSuffixRules) {
         if (rule.re.test(clean) && clean.length > 3) {
@@ -3112,14 +3424,14 @@
               if (cand.length < 2) continue;
               const match = findByTranslation(cand, 'fi', true);
               if (match) {
-                return { token: rawToken, ...punc, entry: match, morph: { plural: rule.plural, caseType: rule.caseType } };
+                return { token: rawToken, ...punc, entry: match, morph: { plural: rule.plural, caseType: rule.caseType, fiCase: rule.fiCase } };
               }
             }
           }
         }
       }
 
-      // 6. Fallback loose search
+      // 7. Fallback loose search
       hit = findByTranslation(clean, 'fi', false);
       return { token: rawToken, ...punc, entry: hit, morph: hit ? { plural: false, caseType: null } : null, isLoose: !!hit };
     }
@@ -3343,22 +3655,22 @@
                 matched = true;
               } else {
                 glossItems.push({
-                  token: `${rawTokens[idx]} ${rawTokens[idx + 1]}`,
+                  token: rawTokens.slice(idx, idx + 2).join(' '),
                   lead: pCur.lead, trail: nextAn.trail,
-                  entry: nextAn.entry, morph: { plural: false, caseType: null },
-                  compRole: curLow === 'most' ? 'superl' : 'comp'
+                  entry: nextAn.entry, morph: { plural: false, caseType: null }, compRole: curLow === 'most' ? 'superl' : 'comp'
                 });
                 idx += 2;
                 matched = true;
               }
             }
           }
-          // Synthetic English superlative + "of all" (e.g. "best of all") or comparative + "than" (e.g. "better than")
+          // "[comp] than" (e.g., "better than") or "[superl] of all" (e.g., "best of all")
           if (!matched && EN_COMP_SUPERL_REVERSE[curLow]) {
+            const cInfo = EN_COMP_SUPERL_REVERSE[curLow];
             const an = analyzeEnglishToken(rawTokens[idx]);
             const p1 = idx + 1 < rawTokens.length ? splitPunctuation(rawTokens[idx + 1]) : null;
             const p2 = idx + 2 < rawTokens.length ? splitPunctuation(rawTokens[idx + 2]) : null;
-            if (an.compRole === 'superl' && p1?.core.toLowerCase() === 'of' && p2?.core.toLowerCase() === 'all') {
+            if (cInfo.role === 'superl' && p1?.core.toLowerCase() === 'of' && p2?.core.toLowerCase() === 'all') {
               glossItems.push({
                 token: rawTokens.slice(idx, idx + 3).join(' '),
                 lead: pCur.lead, trail: p2.trail,
@@ -3366,7 +3678,7 @@
               });
               idx += 3;
               matched = true;
-            } else if (an.compRole === 'comp' && p1?.core.toLowerCase() === 'than') {
+            } else if (cInfo.role === 'comp' && p1?.core.toLowerCase() === 'than') {
               glossItems.push({
                 token: rawTokens.slice(idx, idx + 2).join(' '),
                 lead: pCur.lead, trail: p1.trail,
@@ -3376,9 +3688,9 @@
               matched = true;
             }
           }
-          // English prepositions -> Lokili case suffixes ("in Finland" -> Somise, "of the seagull" -> loke)
+          // English prepositions -> Lokili case suffixes ("in Finland" -> Somise, "about you" -> tinu, "from Finland" -> Sominu, "of the seagull" -> loke)
           // Guard: "to + [verb]" is an infinitive, not a target noun case
-          if (!matched && idx + 1 < rawTokens.length && ['in', 'into', 'to', 'of'].includes(curLow)) {
+          if (!matched && idx + 1 < rawTokens.length && ['in', 'into', 'inside', 'on', 'at', 'as', 'to', 'for', 'about', 'from', 'of'].includes(curLow)) {
             let targetIdx = idx + 1;
             let rawSpan = rawTokens[idx];
             if (targetIdx + 1 < rawTokens.length && ['the', 'a', 'an'].includes(rawTokens[targetIdx].toLowerCase())) {
@@ -3388,13 +3700,56 @@
             const analyzedNext = analyzeEnglishToken(rawTokens[targetIdx]);
             if (analyzedNext && analyzedNext.entry) {
               const isToInfinitive = curLow === 'to' && analyzedNext.entry.ending === '-O';
-              const caseMap = { in: 'ine', into: 'ine', to: 'part', of: 'gen' };
-              glossItems.push({
+              const prevG = glossItems[glossItems.length - 1];
+              const afterVerb = prevG?.entry?.ending === '-O';
+              const isOfTopic = curLow === 'of' && afterVerb;
+
+              const caseMap = {
+                in: 'ine', inside: 'ine', on: 'ine', at: 'ine', as: 'ine',
+                into: 'part', to: 'part', for: 'part', about: 'part', from: 'part',
+                of: isOfTopic ? 'part' : 'gen'
+              };
+              const fiCaseMap = {
+                in: 'ine', inside: 'ine', on: 'ade', at: 'ade', as: 'ess',
+                into: 'ill', to: 'all', for: 'all', about: 'ela', from: 'ela',
+                of: isOfTopic ? 'ela' : 'gen'
+              };
+
+              // If English "you" or "it" appears with a preposition, mark inanimate for "it" and resolve to object pronoun in Lokili
+              const nextLow = (analyzedNext.core || '').toLowerCase();
+              const isInanimate = nextLow === 'it' || nextLow === 'them';
+              let resolvedEntry = analyzedNext.entry;
+              if (!isToInfinitive && resolvedEntry.cat === 'pronouns') {
+                const para = LOKILI_PRONOUN_PARADIGM[resolvedEntry.lokiliLower];
+                const mappedCase = caseMap[curLow];
+                if (para && mappedCase === 'part') {
+                  resolvedEntry = LEXICON.find(x => x.lokiliLower === para.part) || resolvedEntry;
+                } else if (para && mappedCase === 'gen') {
+                  resolvedEntry = LEXICON.find(x => x.lokiliLower === para.gen) || resolvedEntry;
+                }
+              }
+
+              const prepItem = {
                 token: `${rawSpan} ${rawTokens[targetIdx]}`,
                 lead: '', core: analyzedNext.core, trail: analyzedNext.trail,
-                entry: analyzedNext.entry,
-                morph: { plural: analyzedNext.morph?.plural || false, caseType: isToInfinitive ? null : caseMap[curLow] }
-              });
+                entry: resolvedEntry,
+                morph: {
+                  plural: analyzedNext.morph?.plural || false,
+                  caseType: isToInfinitive ? null : caseMap[curLow],
+                  fiCase: isToInfinitive ? null : fiCaseMap[curLow],
+                  inanimate: isInanimate
+                }
+              };
+
+              // For English possessive "[Noun A] of (the) [Noun B]" (e.g. "cry of the seagull"), place the genitive before the head noun for Lokili & Finnish
+              if (curLow === 'of' && !isOfTopic && prevG?.entry && ['-I', '-U', '-OJA', 'ARCHAIC'].includes(prevG.entry.ending)) {
+                const headTrail = prevG.trail;
+                prevG.trail = prepItem.trail;
+                prepItem.trail = headTrail || '';
+                glossItems.splice(glossItems.length - 1, 0, prepItem);
+              } else {
+                glossItems.push(prepItem);
+              }
               idx = targetIdx + 1;
               matched = true;
             }
@@ -3508,6 +3863,27 @@
             analyzed = analyzeEnglishToken(rawTokens[idx]);
           }
           if (analyzed) {
+            // Disambiguate English "like" as verb "melo" after a subject pronoun or negation (e.g. "I like you", "I do not like bread")
+            if (detected === 'en' && (analyzed.core || '').toLowerCase() === 'like') {
+              const prevG = glossItems[glossItems.length - 1];
+              if (prevG?.entry && (prevG.entry.cat === 'pronouns' || prevG.entry.lokiliLower === 'övö')) {
+                const meloEntry = LEXICON.find(x => x.lokiliLower === 'melo');
+                if (meloEntry) analyzed.entry = meloEntry;
+              }
+            }
+            // For English post-verbal object pronouns ("I love you", "I like it"), use Lokili target pronoun (tinu / sinu)
+            if (detected === 'en' && analyzed.entry?.cat === 'pronouns') {
+              const prevG = glossItems[glossItems.length - 1];
+              const coreLow = (analyzed.core || '').toLowerCase();
+              if (coreLow === 'it') analyzed.morph = { ...(analyzed.morph || {}), inanimate: true };
+              if (prevG?.entry?.ending === '-O' && (coreLow === 'you' || coreLow === 'it')) {
+                const para = LOKILI_PRONOUN_PARADIGM[analyzed.entry.lokiliLower];
+                if (para) {
+                  analyzed.entry = LEXICON.find(x => x.lokiliLower === para.part) || analyzed.entry;
+                  analyzed.morph = { ...(analyzed.morph || {}), caseType: 'part', inanimate: coreLow === 'it' };
+                }
+              }
+            }
             // For Finnish pro-drop verbs (e.g. "tiedämme", "en tiedä" without explicit subject), inject implicit Lokili subject pronoun
             if (detected === 'fi' && analyzed.impliedPerson && ['1sg', '2sg', '1pl', '2pl'].includes(analyzed.impliedPerson)) {
               const prevG = glossItems[glossItems.length - 1];
@@ -3710,7 +4086,7 @@
         } else if (g.entry.ending === '-O' && !g.morph?.phrase) {
           enWord = conjugateEnglishVerb(enWord, currentPerson, !!g.negated);
         } else if (!g.morph?.phrase) {
-          enWord = inflectEnglishNoun(enWord, g.morph, g.entry);
+          enWord = inflectEnglishNoun(enWord, g.morph, g.entry, prevLok);
           // Natural definite article before singular animal genitive at sentence start (e.g. "The seagull's cry")
           if (i === 0 && g.morph?.caseType === 'gen' && !g.morph?.plural && ANIMAL_WORDS.has(lok)) {
             enWord = `the ${enWord}`;
